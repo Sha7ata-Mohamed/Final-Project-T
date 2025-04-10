@@ -30,6 +30,6 @@ final-project-404-not-found created by GitHub Classroom
  ### Relationship  
   - It will be one to many meaning 1Q has many options / many options has 1Q 
 
-  ![ER Diagram](https://github.com/user-attachments/assets/705405e2-bf22-4bf8-9900-fa321c551d7b)
+  ![Image](https://github.com/user-attachments/assets/63b1913e-adc1-4e13-9cba-6039bef791bc)
 
 
