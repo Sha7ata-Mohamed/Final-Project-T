@@ -5,9 +5,9 @@ final-project-404-not-found created by GitHub Classroom
 # Overview
  - The project is a Website designed to be a quiz for Python and HTML programming languages. Users will be able to test their knowledge through various quizzes and track their scores
 # Requirements 
- - [ ] Setup new project named **Final_Project** use this code for start (python .\manage.py startproject)
+ - [ ] Setup new project named **Final_Project**
  ### Note do not forget to cd 
- - [ ] Setup new app named **Code_Mix** use this code (python .\manage.py startapp)
+ - [ ] Setup new app named **Code_Mix** 
  - [ ] Create the models based on ER diagram 
  - [ ] Perform migrations and prepare the database (makemigrations & migrate)
  - [ ] Create the admin based on these models
