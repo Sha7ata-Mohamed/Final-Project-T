@@ -1,5 +1,3 @@
-# Final-Project-T
- 
 # final-project-404-not-found
 final-project-404-not-found created by GitHub Classroom
 # Overview
@@ -7,7 +5,7 @@ final-project-404-not-found created by GitHub Classroom
 # Requirements 
  - [ ] Setup new project named **Final_Project**
  ### Note do not forget to cd 
- - [ ] Setup new app named **Code_Mix** 
+ - [ ] Setup new app named **Code_Mix** use this code
  - [ ] Create the models based on ER diagram 
  - [ ] Perform migrations and prepare the database (makemigrations & migrate)
  - [ ] Create the admin based on these models
@@ -31,5 +29,7 @@ final-project-404-not-found created by GitHub Classroom
   - Show two options for the Quiz (Which language you want to test your knowledge)
  ### Relationship  
   - It will be one to many meaning 1Q has many options / many options has 1Q 
-  [![ER Diagram](https://github.com/user-attachments/assets/4e7a98b3-c169-4b49-bb28-5ff9993800e4)](https://lucid.app/lucidchart/7ecbb660-a05b-470e-8b95-471218613f0c/edit?viewport_loc=-68%2C-303%2C1705%2C752%2C0_0&invitationId=inv_8df39993-e3dd-4b6c-96d0-eddda6108be2)
-    
+
+  ![ER Diagram](https://github.com/user-attachments/assets/705405e2-bf22-4bf8-9900-fa321c551d7b)
+
+
