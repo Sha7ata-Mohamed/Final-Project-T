@@ -9,11 +9,15 @@ final-project-404-not-found created by GitHub Classroom
  - [ ] Create the models based on ER diagram 
  - [ ] Perform migrations and prepare the database (makemigrations & migrate)
  - [ ] Create the admin based on these models
- - [ ] Create a superuser name test email(optional) test@test.com password 1234
- - [ ] Create the the questions and the options in the (admin url)
- - [ ] Make sure it works 
- - [ ] Then start with the views functions and the templates
-
+ - [ ] Create a superuser name **test** email(optional) test@test.com **password** 1234
+ - [ ] Create the the questions and the options in the **admin**
+ - [ ] Create the views functions
+ - [ ] Create a template folder **templates** inside it create a HTML file name it as you like
+ - [ ] Create a new URL inside the project & connect the local URL to the new URL
+ - [ ] Set up the URLs 
+ - [ ] Make sure the data show in the webpage
+ - [ ] Create a CSS folder name it **static/css** inside the folder create a file name **style.css**
+ - [ ] Search for **How to link a CSS file to HTML file in Django framework**
 ### Team Roles
  - Project manager: 
     - Abdulrahman-Mohamed
