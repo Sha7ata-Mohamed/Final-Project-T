@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ question.title }}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1>{{ question.question }}</h1>
+    <ul>
+        {% for opt in options %}
+        <div>
+            <div class="right">
+                <li>{{ opt.option_1 }}</li>
+            </div>
+            <div>
+                <li>{{ opt.option_2 }}</li>
+            </div>
+            <div>
+                <li>{{ opt.option_3 }}</li>
+             </div>
+            <div>
+                <li>{{ opt.option_4 }}</li>
+            </div>   
+        </div>
+            <li><strong>Answer:</strong> {{ opt.answer }}</li>
+        {% empty %}
+            <li>No options available.</li>
+        {% endfor %}
+
+    </ul>
+</body>
+</html>

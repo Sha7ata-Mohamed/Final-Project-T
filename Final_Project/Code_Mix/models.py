@@ -9,7 +9,7 @@ class Questions(models.Model):
     id = models.AutoField(primary_key=True)
     rank = models.IntegerField(choices=Questions_rank, default=1)
     title = models.CharField(max_length=100)
-    question = models.CharField(max_length=1000)
+    question = models.CharField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return f"{self.id} - {self.rank} - {self.title} - {self.question}"
@@ -22,10 +22,10 @@ class Options(models.Model):
     option_3 = models.CharField(max_length=100, null=True, blank=True)
     option_4 = models.CharField(max_length=100, null=True, blank=True)
     answer = models.CharField(max_length=100, null=True, blank=True)
-    ouestion = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='Options')
+    Questions = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='Options')
 
     def __str__(self):
-        return f"{self.id} - {self.answer} {self.question_id} - {self.ouestion}"
+        return f"{self.id} - {self.answer} {self.question_id} - {self.Questions}"
    
 @property
 def all_options(self):
