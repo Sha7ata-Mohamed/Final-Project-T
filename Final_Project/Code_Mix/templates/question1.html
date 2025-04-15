@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ question.title }}</title>
+    <title>Code Mix</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 </head>
 <body>
@@ -12,18 +12,10 @@
     <ul>
         {% for opt in options %}
         <div>
-            <div class="right">
-                <li>{{ opt.option_1 }}</li>
-            </div>
-            <div>
-                <li>{{ opt.option_2 }}</li>
-            </div>
-            <div>
-                <li>{{ opt.option_3 }}</li>
-             </div>
-            <div>
-                <li>{{ opt.option_4 }}</li>
-            </div>   
+            <li>{{ opt.option_1 }}</li>
+            <li>{{ opt.option_2 }}</li>
+            <li>{{ opt.option_3 }}</li>
+            <li>{{ opt.option_4 }}</li>
         </div>
             <li><strong>Answer:</strong> {{ opt.answer }}</li>
         {% empty %}
@@ -31,5 +23,7 @@
         {% endfor %}
 
     </ul>
+
+        <a href=".">Next Question</a>
 </body>
 </html>

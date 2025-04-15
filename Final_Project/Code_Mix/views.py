@@ -9,3 +9,12 @@ def Question_One(request, question_id):
         'options': options,
     }
     return render(request, 'question1.html', context)
+
+def Question_Two(request, question_id):
+    q = get_object_or_404(Questions, id=question_id)
+    o = Options.objects.filter(question_id=q)  # Using 'question_id' for filtering
+    context = {
+        'q': q,
+        'o': o,
+    }
+    return render(request, 'question2.html', context)
