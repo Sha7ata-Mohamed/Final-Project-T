@@ -14,8 +14,8 @@ def Question_Two(request, question_id):
     q2 = get_object_or_404(Questions, id=question_id)
     options = Options.objects.filter(question_id=q2)  # Using 'question_id' for filtering
     context = {
-        'q': q2,
-        'o': options,
+        'q2': q2,
+        'options': options,
     }
     return render(request, 'question1.html', context)
 
@@ -23,10 +23,17 @@ def Question_Two(request, question_id):
 def index(request):
     return render(request, 'index.html')
 
-def type(request, type):
-    questions = Questions.objects.filter(rank=type)
+def choose_type(request, rank):
+    # Convert rank to lowercase for case-insensitive comparison
+    if rank.lower() == 'bronze':
+        rank_value = 1
+    elif rank.lower() == 'master':
+        rank_value = 2
+    else:
+        rank_value = None
+    questions = Questions.objects.filter(rank=rank_value)
     context = {
         'questions': questions,
-        'type': type,
+        'rank': rank,
     }
-    return render(request, 'question1.html', context)
+    return render(request, 'type.html', context)

@@ -1,15 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Code Mix</title>
+    <link rel="stylesheet" href="{% static 'css/type.css' %}">
 </head>
 <body>
     <h1>Which language you want to test your knowledge</h1>
     <ul>
-        <li><a href="{% url ''%}">Python</a></li>
-        <li><a href="{% url '' %}">HTML</a></li>
+        <li><a href="{% url 'question_two' 1 %}">Python</a></li>
+        <li><a href="{% url 'question_one' 2 %}">HTML</a></li>
     </ul>
+    <a href="{% url 'index' %}"><b>Home</b></a>
 </body>
 </html>

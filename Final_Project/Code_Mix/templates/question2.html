@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Mix</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    !-- Python Code --
 </head>
 <body>
     <h1>{{q2.question}}</h1>
-    {{% for opt in options %}}
+    {% for opt in options %}
     <div>
         <li>{{ opt.option_1 }}</li>
         <li>{{ opt.option_2 }}</li>
