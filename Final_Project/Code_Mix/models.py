@@ -7,7 +7,7 @@ Questions_rank = (
 )
 class Questions(models.Model):
     id = models.AutoField(primary_key=True)
-    rank = models.IntegerField(choices=Questions_rank, default=1)
+    rank = models.IntegerField(choices=Questions_rank)
     title = models.CharField(max_length=100)
     question = models.CharField(max_length=1000, null=True, blank=True)
 
