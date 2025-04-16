@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <h1>{{ question.question }}</h1>
+    <h1>{{q1.question}}</h1>
     <ul>
         {% for opt in options %}
         <div>
@@ -17,13 +17,12 @@
             <li>{{ opt.option_3 }}</li>
             <li>{{ opt.option_4 }}</li>
         </div>
-            <li><strong>Answer:</strong> {{ opt.answer }}</li>
-        {% empty %}
-            <li>No options available.</li>
-        {% endfor %}
-
     </ul>
 
-        <a href=".">Next Question</a>
+        <a href="{% url 'question2' %}">Next Question</a>
 </body>
 </html>
+{{ optanswer }}
+{% empty %}
+    <li>No options available.</li>
+{% endfor %}

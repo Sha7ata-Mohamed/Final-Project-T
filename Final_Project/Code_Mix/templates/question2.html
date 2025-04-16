@@ -6,7 +6,14 @@
     <title>Code Mix</title>
 </head>
 <body>
-    <h1>{{ question.question }}</h1>
-    {{% for o in o %}}
+    <h1>{{q2.question}}</h1>
+    {{% for opt in options %}}
+    <div>
+        <li>{{ opt.option_1 }}</li>
+        <li>{{ opt.option_2 }}</li>
+        <li>{{ opt.option_3 }}</li>
+        <li>{{ opt.option_4 }}</li>
+    </div>
+    {% endfor %}
 </body>
 </html>
