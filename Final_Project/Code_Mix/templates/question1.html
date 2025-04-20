@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Mix</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-    !-- Html code -- 
+    <!--Html code-->
 </head>
 <body>
     <h1>{{q1.question}}</h1>
@@ -18,12 +18,11 @@
             <li>{{ opt.option_3 }}</li>
             <li>{{ opt.option_4 }}</li>
         </div>
+        <div>
+            <a href="{% url 'question_two' 1 %}">Next Question</a>        
+        </div>
+        {% endfor %}
     </ul>
 
-        <a href="{% url 'question2' 1 %}">Next Question</a>
 </body>
 </html>
-{{ optanswer }}
-{% empty %}
-    <li>No options available.</li>
-{% endfor %}
