@@ -1,7 +1,8 @@
 # final-project-404-not-found
 final-project-404-not-found created by GitHub Classroom
 # Overview
- - The project is a Website designed to be a quiz for Python and HTML programming languages. Users will be able to test their knowledge through various quizzes and track their scores
+ - The project is a Website designed to be a quiz for many topic like Python, HTML and Django framework. Users will be able to test their knowledge through various quizzes and track their scores. This is how it will work.
+ - Three **DIFFICULTY LEVEL** Easy, Medium and Hard. The user can choose any difficulty level then they will have to choose which topic they want to test their knowledge in. There will be scores for each correct answer
 # Requirements 
  - [ ] Setup new project named **Final_Project**
  ### Note do not forget to cd 
