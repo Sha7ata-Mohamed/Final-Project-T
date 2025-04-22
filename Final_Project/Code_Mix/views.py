@@ -23,17 +23,10 @@ def Question_Two(request, question_id):
 def index(request):
     return render(request, 'index.html')
 
-def choose_type(request, rank):
-    if rank.lower() == 'bronze':
-        rank_value = 1
-    elif rank.lower() == 'master':
-        rank_value = 2
-    else:
-        rank_value = None
-
-    questions = Questions.objects.filter(rank=rank_value)
+def choose_type(request, diff_level):
+    questions = Questions.objects.filter(diff_level=diff_level)
     context = {
         'questions': questions,
-        'rank': rank,
+        'diff_level': diff_level,
     }
     return render(request, 'type.html', context)
