@@ -13,7 +13,7 @@ class Questions(models.Model):
         ('html', 'HTML'),
         ('python', 'Python'),
         ('django', 'Django'),
-        ('isom','Isom'),
+        ('isom', 'Isom'),
     )
     diff_level = models.CharField(max_length=10, choices=DIFFICULTY_LEVEL, null=True, blank=True)
     question_category = models.CharField(max_length=10, choices=QUESTION_CATEGORY, null=True, blank=True)
@@ -32,7 +32,6 @@ class Options(models.Model):
     option_3 = models.CharField(max_length=100, null=True, blank=True)
     option_4 = models.CharField(max_length=100, null=True, blank=True)
     answer = models.CharField(max_length=100, null=True, blank=True)
-    #answer = models.CharField(max_length=100, null=True, blank=True)
     def __str__(self):
         return f"{self.id} - {self.answer} - {self.question}"
    
