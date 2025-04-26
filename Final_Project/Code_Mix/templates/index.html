@@ -5,17 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Mix</title>
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
 </head>
 <body>
     <h1> Welcome to Code Mix <br>
         Hope you are ready for your <b>ADVENTURE</b>
     </h1>
     <h2>Choose a difficulty to start:</h2>
-    <a href="{% url 'choose_type' 'easy' %}">Easy</a><br>
+    <a href="{% url 'choose_category' %}?diff_level=easy">Easy</a><br>
     <br>
-    <a href="{% url 'choose_type' 'medium' %}">Medium</a><br>
+    <a href="{% url 'choose_category' %}?diff_level=medium">Medium</a><br>
     <br>
-    <a href="{% url 'choose_type' 'hard' %}">Hard</a><br>
+    <a href="{% url 'choose_category' %}?diff_level=hard">Hard</a><br>
 </body>
 </html>

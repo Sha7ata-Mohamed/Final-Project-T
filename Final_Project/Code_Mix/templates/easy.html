@@ -9,7 +9,7 @@
     <!--Html code-->
 </head>
 <body>
-    <h1>{{question_easy.question}}</h1>
+     <h1>{{question_easy.question}}</h1>
     <ul>
         {% for opt in options %}
         <div>
@@ -19,7 +19,7 @@
             <li>{{ opt.option_4 }}</li>
         </div>
         <div>
-            <a href="{% url 'question_two' 1 %}">Next Question</a>        
+            <a href="{% url 'easy_category' 1 %}">Next Question</a>        
         </div>
         {% endfor %}
     </ul>

@@ -35,7 +35,3 @@ class Options(models.Model):
     def __str__(self):
         return f"{self.id} - {self.answer} - {self.question}"
    
-#@property
-#def all_options(self):
- #   return [self.option_1, self.option_2, self.option_3, self.option_4]
-
