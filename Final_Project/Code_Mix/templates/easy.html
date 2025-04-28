@@ -65,7 +65,7 @@
                     
                     <div class="actions d-flex justify-content-between">
                         <button type="submit" class="btn btn-primary">Submit Answer</button>
-                        <a href="{% url 'easy_category' 1 %}" class="btn btn-outline-secondary">Next Question</a>
+                        <a href="{% url 'easy_category' next_id %}?category={{ category }}" class="btn btn-outline-secondary">Next Question</a>
                     </div>
                     {% endfor %}
                 </form>
