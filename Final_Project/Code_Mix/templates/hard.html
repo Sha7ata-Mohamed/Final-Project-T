@@ -1,33 +1,76 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Mix</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-</head>
-<body>
-    <h1>{{ question_hard.question }}</h1>
-    <form method="POST" action="{% url 'submit_answer' %}">
-        {% csrf_token %}
-        <input type="hidden" name="question_id" value="{{ question_hard.id }}">
-        <input type="hidden" name="difficulty" value="{{ question_hard.diff_level }}">
-        <input type="hidden" name="category" value="{{ question_hard.question_category }}">
-        <ul>
-            {% for opt in options %}
-            <div>
-                <li><input type="radio" name="selected_option" value="{{ opt.option_1 }}"> {{ opt.option_1 }}</li>
-                <li><input type="radio" name="selected_option" value="{{ opt.option_2 }}"> {{ opt.option_2 }}</li>
-                <li><input type="radio" name="selected_option" value="{{ opt.option_3 }}"> {{ opt.option_3 }}</li>
-                <li><input type="radio" name="selected_option" value="{{ opt.option_4 }}"> {{ opt.option_4 }}</li>
+
+{% block title %}Code Mix - Hard Question{% endblock %}
+
+{% block header %}{{ question_hard.question }}{% endblock %}
+{% block subheader %}Django Quiz - Hard Level{% endblock %}
+
+{% block extra_css %}
+<style>
+    .option-list {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .option-item {
+        margin-bottom: 10px;
+    }
+    .actions {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h2 class="h4 mb-0">Question: {{ question_hard.id }}</h2>
             </div>
-            <div>
-                <button type="submit">Submit Answer</button>
-                <a href="{% url 'hard_category' 1 %}">Next Question</a>
+            <div class="card-body">
+                <form method="POST" action="{% url 'submit_answer' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="question_id" value="{{ question_hard.id }}">
+                    <input type="hidden" name="difficulty" value="{{ question_hard.diff_level }}">
+                    <input type="hidden" name="category" value="{{ question_hard.question_category }}">
+                    
+                    {% for opt in options %}
+                    <ul class="option-list">
+                        <li class="option-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1">
+                                <label class="form-check-label" for="option1">{{ opt.option_1 }}</label>
+                            </div>
+                        </li>
+                        <li class="option-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2">
+                                <label class="form-check-label" for="option2">{{ opt.option_2 }}</label>
+                            </div>
+                        </li>
+                        <li class="option-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3">
+                                <label class="form-check-label" for="option3">{{ opt.option_3 }}</label>
+                            </div>
+                        </li>
+                        <li class="option-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4">
+                                <label class="form-check-label" for="option4">{{ opt.option_4 }}</label>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <div class="actions d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">Submit Answer</button>
+                        <a href="{% url 'hard_category' 1 %}" class="btn btn-outline-secondary">Next Question</a>
+                    </div>
+                    {% endfor %}
+                </form>
             </div>
-            {% endfor %}
-        </ul>
-    </form>
-</body>
-</html>
+        </div>
+    </div>
+</div>
+{% endblock %}
