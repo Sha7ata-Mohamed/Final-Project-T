@@ -4,7 +4,6 @@
 {% block title %}Code Mix - Easy Question{% endblock %}
 
 {% block header %}{{ question_easy.question }}{% endblock %}
-{% block subheader %}HTML Quiz - Easy Level{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -26,7 +25,7 @@
     <div class="col-lg-8">
         <div class="card shadow">
             <div class="card-header bg-success text-white">
-                <h2 class="h4 mb-0">Question: {{ question_easy.id }}</h2>
+                <h2 class="h4 mb-0">Question: {{question_easy.id}}</h2>
             </div>
             <div class="card-body">
                 <form method="POST" action="{% url 'submit_answer' %}">
@@ -65,10 +64,15 @@
                     
                     <div class="actions d-flex justify-content-between">
                         <button type="submit" class="btn btn-primary">Submit Answer</button>
-                        <a href="{% url 'easy_category' 1 %}" class="btn btn-outline-secondary">Next Question</a>
+                        <a href="{% url 'easy_category' next_id %}?category={{ category }}" class="btn btn-outline-secondary">Next Question</a>
                     </div>
                     {% endfor %}
                 </form>
+                <div>
+                    <p>
+                        <a href="{% url 'index'%}"> Back to Home</a>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
