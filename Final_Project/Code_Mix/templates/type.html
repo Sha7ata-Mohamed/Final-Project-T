@@ -1,20 +1,42 @@
-<!-- type.html -->
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choose Language</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-</head>
-<body>
-    <h1>Which language do you want to test?</h1>
-    <ul>
-        <li><a href="{% url 'easy_category' 1 %}?category=html">HTML</a></li>
-        <li><a href="{% url 'easy_category' 1 %}?category=python">Python</a></li>
-        <li><a href="{% url 'easy_category' 1 %}?category=django">Django</a></li>
-    </ul>
-    <a href="{% url 'index' %}">Home</a>
-</body>
-</html>
+
+{% block title %}Code Mix - Choose Language{% endblock %}
+
+{% block header %}Which language do you want to test?{% endblock %}
+{% block subheader %}Select a programming language to begin your quiz{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0">Available Categories</h2>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{% url 'easy_category' 1 %}?category=html" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        HTML
+                        <span class="badge bg-primary rounded-pill">Web</span>
+                    </a>
+                    <a href="{% url 'easy_category' 1 %}?category=python" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        Python
+                        <span class="badge bg-success rounded-pill">Programming</span>
+                    </a>
+                    <a href="{% url 'easy_category' 1 %}?category=django" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        Django
+                        <span class="badge bg-info rounded-pill">Framework</span>
+                    </a>
+                    <a href="{% url 'easy_category' 1 %}?category=isom" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        ISOM
+                        <span class="badge bg-warning rounded-pill">Business</span>
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'index' %}" class="btn btn-primary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
