@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Questions, Options
+from django.db.models import Count, Sum, F, Q, Case, When, IntegerField, ExpressionWrapper, FloatField
+from django.db.models.functions import Cast
+from .models import Questions, Options, UserAnswer
 
 def index(request):
     return render(request, 'index.html')
@@ -54,3 +56,48 @@ def hard_category(request, id):
         'options': options,
     }
     return render(request, 'hard.html', context)
+
+def submit_answer(request):
+    if request.method == 'POST':
+        question_id = request.POST.get('question_id')
+        selected_option = request.POST.get('selected_option')
+        
+        question = get_object_or_404(Questions, id=question_id)
+        user_answer = UserAnswer(
+            question=question,
+            selected_option=selected_option
+        )
+        user_answer.save()  # This will also set is_correct, category, and difficulty
+        
+        if question.diff_level == 'easy':
+            return redirect('easy_category', id=1)
+        elif question.diff_level == 'medium':
+            return redirect('medium_category', id=1)
+        else:
+            return redirect('hard_category', id=1)
+    
+    return redirect('index')
+
+def show_scores(request):
+    category_scores = UserAnswer.objects.values('category').annotate(
+        correct_count=Count('id', filter=Q(is_correct=True)),
+        total_count=Count('id'),
+    ).order_by('category')
+    
+    difficulty_scores = UserAnswer.objects.values('difficulty').annotate(
+        correct_count=Count('id', filter=Q(is_correct=True)),
+        total_count=Count('id'),
+    ).order_by('difficulty')
+    
+    combined_scores = UserAnswer.objects.values('category', 'difficulty').annotate(
+        correct_count=Count('id', filter=Q(is_correct=True)),
+        total_count=Count('id'),
+    ).order_by('category', 'difficulty')
+    
+    context = {
+        'category_scores': category_scores,
+        'difficulty_scores': difficulty_scores,
+        'combined_scores': combined_scores
+    }
+    
+    return render(request, 'scores.html', context)
