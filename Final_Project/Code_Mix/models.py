@@ -48,10 +48,13 @@ class UserAnswer(models.Model):
         return f"{self.id} - {self.question} - {self.is_correct}"
     
     def save(self, *args, **kwargs):
-        self.category = self.question.question_category
-        self.difficulty = self.question.diff_level
-        
-        option = Options.objects.get(question=self.question)
-        self.is_correct = (self.selected_option == option.answer)
+        # Make sure the question is saved before accessing its attributes
+        if self.question_id:
+            question_obj = Questions.objects.get(id=self.question_id)
+            self.category = question_obj.question_category
+            self.difficulty = question_obj.diff_level
+            
+            option = Options.objects.get(question=self.question)
+            self.is_correct = (self.selected_option == option.answer)
         super(UserAnswer, self).save(*args, **kwargs)
    
