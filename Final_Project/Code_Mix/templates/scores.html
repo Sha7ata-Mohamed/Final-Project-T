@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Code Mix - Quiz Scores{% endblock %}
+
+{% block header %}Your Quiz Results{% endblock %}
+{% block subheader %}See how well you performed in different categories and difficulty levels{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Category Scores -->
+        <div class="score-card bg-white">
+            <div class="card-header bg-primary text-white p-3">
+                <h2 class="h4 mb-0">Category Scores</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Category</th>
+                            <th>Correct Answers</th>
+                            <th>Total Questions</th>
+                            <th>Score</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in category_scores %}
+                        <tr>
+                            <td><strong>{{ category.category }}</strong></td>
+                            <td>{{ category.correct_count }}</td>
+                            <td>{{ category.total_count }}</td>
+                            <td>{{ category.percentage|floatformat:1 }}%</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {% if category.percentage >= 80 %}bg-success{% elif category.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                        role="progressbar" 
+                                        style="width: '{{ category.percentage }}%;" 
+                                        aria-valuenow="{{ category.percentage }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        {{ category.percentage|floatformat:0 }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No category scores available yet. Take some quizzes!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Difficulty Level Scores -->
+        <div class="score-card bg-white mt-4">
+            <div class="card-header bg-success text-white p-3">
+                <h2 class="h4 mb-0">Difficulty Level Scores</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Difficulty</th>
+                            <th>Correct Answers</th>
+                            <th>Total Questions</th>
+                            <th>Score</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for difficulty in difficulty_scores %}
+                        <tr>
+                            <td><strong>{{ difficulty.difficulty }}</strong></td>
+                            <td>{{ difficulty.correct_count }}</td>
+                            <td>{{ difficulty.total_count }}</td>
+                            <td>{{ difficulty.percentage|floatformat:1 }}%</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {% if difficulty.percentage >= 80 %}bg-success{% elif difficulty.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                        role="progressbar" 
+                                        style="width: '{{ difficulty.percentage }}%;" 
+                                        aria-valuenow="{{ difficulty.percentage }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        {{ difficulty.percentage|floatformat:0 }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No difficulty scores available yet. Take some quizzes!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Combined Scores -->
+        <div class="score-card bg-white mt-4">
+            <div class="card-header bg-info text-white p-3">
+                <h2 class="h4 mb-0">Category and Difficulty Scores</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Category</th>
+                            <th>Difficulty</th>
+                            <th>Correct Answers</th>
+                            <th>Total Questions</th>
+                            <th>Score</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for score in combined_scores %}
+                        <tr>
+                            <td><strong>{{ score.category }}</strong></td>
+                            <td>{{ score.difficulty }}</td>
+                            <td>{{ score.correct_count }}</td>
+                            <td>{{ score.total_count }}</td>
+                            <td>{{ score.percentage|floatformat:1 }}%</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {% if score.percentage >= 80 %}bg-success{% elif score.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                        role="progressbar" 
+                                        style="width: '{{ score.percentage }}%"
+                                        aria-valuenow="{{ score.percentage }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        {{ score.percentage|floatformat:0 }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No combined scores available yet. Take some quizzes!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="text-center home-btn mt-4">
+            <a href="{% url 'index' %}" class="btn btn-primary btn-lg">Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
