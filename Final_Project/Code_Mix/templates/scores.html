@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Scores</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <h1>Your Quiz Results</h1>
+    
+    <h2>Category Scores</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Correct Answers</th>
+                <th>Total Questions</th>
+                <th>Score Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in category_scores %}
+            <tr>
+                <td>{{ category.category }}</td>
+                <td>{{ category.correct_count }}</td>
+                <td>{{ category.total_count }}</td>
+                <td>{{ category.percentage }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h2>Difficulty Level Scores</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Difficulty</th>
+                <th>Correct Answers</th>
+                <th>Total Questions</th>
+                <th>Score Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for difficulty in difficulty_scores %}
+            <tr>
+                <td>{{ difficulty.difficulty }}</td>
+                <td>{{ difficulty.correct_count }}</td>
+                <td>{{ difficulty.total_count }}</td>
+                <td>{{ difficulty.percentage }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <h2>Category and Difficulty Scores</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Difficulty</th>
+                <th>Correct Answers</th>
+                <th>Total Questions</th>
+                <th>Score Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for score in combined_scores %}
+            <tr>
+                <td>{{ score.category }}</td>
+                <td>{{ score.difficulty }}</td>
+                <td>{{ score.correct_count }}</td>
+                <td>{{ score.total_count }}</td>
+                <td>{{ score.percentage }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <a href="{% url 'index' %}">Back to Home</a>
+</body>
+</html>

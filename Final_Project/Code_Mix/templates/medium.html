@@ -11,14 +11,26 @@
     <!-- Python Code -->
 </head>
 <body>
-    <h1>{{ q2.question }}</h1>
-    {% for opt in options %}
-    <div>
-        <li>{{ opt.option_1 }}</li>
-        <li>{{ opt.option_2 }}</li>
-        <li>{{ opt.option_3 }}</li>
-        <li>{{ opt.option_4 }}</li>
-    </div>
-    {% endfor %}
+    <h1>{{ question_medium.question }}</h1>
+    <form method="POST" action="{% url 'submit_answer' %}">
+        {% csrf_token %}
+        <input type="hidden" name="question_id" value="{{ question_medium.id }}">
+        <input type="hidden" name="difficulty" value="{{ question_medium.diff_level }}">
+        <input type="hidden" name="category" value="{{ question_medium.question_category }}">
+        <ul>
+            {% for opt in options %}
+            <div>
+                <li><input type="radio" name="selected_option" value="{{ opt.option_1 }}"> {{ opt.option_1 }}</li>
+                <li><input type="radio" name="selected_option" value="{{ opt.option_2 }}"> {{ opt.option_2 }}</li>
+                <li><input type="radio" name="selected_option" value="{{ opt.option_3 }}"> {{ opt.option_3 }}</li>
+                <li><input type="radio" name="selected_option" value="{{ opt.option_4 }}"> {{ opt.option_4 }}</li>
+            </div>
+            <div>
+                <button type="submit">Submit Answer</button>
+                <a href="{% url 'medium_category' 1 %}">Next Question</a>
+            </div>
+            {% endfor %}
+        </ul>
+    </form>
 </body>
 </html>
