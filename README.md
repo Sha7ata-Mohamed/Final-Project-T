@@ -36,4 +36,12 @@ final-project-404-not-found created by GitHub Classroom
   - It will be one to many meaning 1Q has many options / many options has 1Q 
 
   ![Image](https://github.com/user-attachments/assets/eb7f647d-3a0b-483e-92f9-1b750c05ab16)
-
+### Bounces
+  - I used **Count,Q,ExpressionWrapper and FloatField** to calculate the scores and for calculating the percentage of scores
+  - I used **Cast** to from Django ORM to change (convert) the data type of a database field inside a Django query(Display data in a new format without changing it in the database itself.)
+  - I used **reverse** Because if I changed The URL patterns later, I don't need to update all the code manually. I only need to update the urls.py, and reverse will still work automatically. 
+  **Example**:  instead of typing the URL like this /blog/5/ // I do this (url = reverse('post_detail', args=[5]))
+  - I used def **save(self, *args, **kwargs)** 
+  args stands for Any **positional arguments** Django sends to .save().
+  kwargs stands for Any **keyword arguments** Django sends to .save().
+  This helped me with Customizing what happens before/after saving.Also, if I forget to save the Customizations

@@ -4,7 +4,6 @@
 {% block title %}Code Mix - Medium Question{% endblock %}
 
 {% block header %}{{ question_medium.question }}{% endblock %}
-{% block subheader %}Python Quiz - Medium Level{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -65,7 +64,7 @@
                     
                     <div class="actions d-flex justify-content-between">
                         <button type="submit" class="btn btn-primary">Submit Answer</button>
-                        <a href="{% url 'medium_category' 1 %}" class="btn btn-outline-secondary">Next Question</a>
+                        <a href="{% url 'medium_category' next_id %}?category={{ category }}" class="btn btn-outline-secondary">Next Question</a>
                     </div>
                     {% endfor %}
                 </form>

@@ -4,7 +4,6 @@
 {% block title %}Code Mix - Hard Question{% endblock %}
 
 {% block header %}{{ question_hard.question }}{% endblock %}
-{% block subheader %}Django Quiz - Hard Level{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -65,7 +64,7 @@
                     
                     <div class="actions d-flex justify-content-between">
                         <button type="submit" class="btn btn-primary">Submit Answer</button>
-                        <a href="{% url 'hard_category' 1 %}" class="btn btn-outline-secondary">Next Question</a>
+                        <a href="{% url 'hard_category' next_id %}?category={{ category }}" class="btn btn-outline-secondary">Next Question</a>
                     </div>
                     {% endfor %}
                 </form>
