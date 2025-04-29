@@ -8,5 +8,5 @@ urlpatterns = [
     path('medium/<int:id>/', views.medium_category, name='medium_category'),
     path('hard/<int:id>/', views.hard_category, name='hard_category'),
     path('submit_answer/', views.submit_answer, name='submit_answer'),
-    path('scores/', views.show_scores, name='show_scores'),
+    path('scores/', views.show_scores, name='scores'),
 ]

@@ -45,11 +45,29 @@ def easy_category(request, id):
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
     
     options = Options.objects.filter(question=question_easy)
+    
+    show_answer = request.GET.get('show_answer', False)
+    selected_option = request.GET.get('selected_option', None)
+    is_correct = request.GET.get('is_correct', None) == 'True'
+    
+    correct_answer = None
+    explanation = None
+    if show_answer:
+        option = options.first()
+        correct_answer = option.answer
+        if hasattr(option, 'explanation'):
+            explanation = option.explanation
+    
     context = {
         'question_easy': question_easy,
         'options': options,
         'next_id': next_id,
         'category': category,
+        'show_answer': show_answer,
+        'selected_option': selected_option,
+        'is_correct': is_correct,
+        'correct_answer': correct_answer,
+        'explanation': explanation
     }
     return render(request, 'easy.html', context)
 
@@ -74,11 +92,29 @@ def medium_category(request, id):
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
     
     options = Options.objects.filter(question=question_medium)
+    
+    show_answer = request.GET.get('show_answer', False)
+    selected_option = request.GET.get('selected_option', None)
+    is_correct = request.GET.get('is_correct', None) == 'True'
+    
+    correct_answer = None
+    explanation = None
+    if show_answer:
+        option = options.first()
+        correct_answer = option.answer
+        if hasattr(option, 'explanation'):
+            explanation = option.explanation
+    
     context = {
         'question_medium': question_medium,
         'options': options,
         'next_id': next_id,
         'category': category,
+        'show_answer': show_answer,
+        'selected_option': selected_option,
+        'is_correct': is_correct,
+        'correct_answer': correct_answer,
+        'explanation': explanation
     }
     return render(request, 'medium.html', context)
 
@@ -103,11 +139,29 @@ def hard_category(request, id):
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
     
     options = Options.objects.filter(question=question_hard)
+    
+    show_answer = request.GET.get('show_answer', False)
+    selected_option = request.GET.get('selected_option', None)
+    is_correct = request.GET.get('is_correct', None) == 'True'
+    
+    correct_answer = None
+    explanation = None
+    if show_answer:
+        option = options.first()
+        correct_answer = option.answer
+        if hasattr(option, 'explanation'):
+            explanation = option.explanation
+    
     context = {
         'question_hard': question_hard,
         'options': options,
         'next_id': next_id,
         'category': category,
+        'show_answer': show_answer,
+        'selected_option': selected_option,
+        'is_correct': is_correct,
+        'correct_answer': correct_answer,
+        'explanation': explanation
     }
     return render(request, 'hard.html', context)
 
@@ -116,13 +170,17 @@ def submit_answer(request):
         question_id = request.POST.get('question_id')
         selected_option = request.POST.get('selected_option')
         category = request.POST.get('category')
+        difficulty = request.POST.get('difficulty')
         
         question = get_object_or_404(Questions, id=question_id)
+        option = Options.objects.get(question=question)
+        is_correct = (selected_option == option.answer)
+        
         user_answer = UserAnswer(
             question=question,
             selected_option=selected_option
         )
-        user_answer.save() 
+        user_answer.save()
         
         questions = Questions.objects.filter(
             diff_level=question.diff_level, 
@@ -132,12 +190,12 @@ def submit_answer(request):
         next_questions = questions.filter(id__gt=question.id)
         next_id = next_questions.first().id if next_questions.exists() else questions.first().id
         
-        if question.diff_level == 'easy':
-            return redirect(f"{reverse('easy_category', args=[next_id])}?category={category}")
-        elif question.diff_level == 'medium':
-            return redirect(f"{reverse('medium_category', args=[next_id])}?category={category}")
+        if difficulty == 'easy':
+            return redirect(f"{reverse('easy_category', args=[question_id])}?category={category}&show_answer=True&selected_option={selected_option}&is_correct={is_correct}")
+        elif difficulty == 'medium':
+            return redirect(f"{reverse('medium_category', args=[question_id])}?category={category}&show_answer=True&selected_option={selected_option}&is_correct={is_correct}")
         else:
-            return redirect(f"{reverse('hard_category', args=[next_id])}?category={category}")
+            return redirect(f"{reverse('hard_category', args=[question_id])}?category={category}&show_answer=True&selected_option={selected_option}&is_correct={is_correct}")
     
     return redirect('index')
 
