@@ -64,17 +64,52 @@
                     
                     <div class="actions d-flex justify-content-between">
                         <button type="submit" class="btn btn-primary">Submit Answer</button>
-                        <a href="{% url 'easy_category' next_id %}?category={{ category }}" class="btn btn-outline-secondary">Next Question</a>
+                        <div>
+                            <a href="{% url 'easy_category' next_id %}?category={{ category }}" class="btn btn-outline-secondary">Next Question</a>
+                            {% if user.is_authenticated %}
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#pauseModal">
+                                Pause Quiz
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                     {% endfor %}
                 </form>
                 <div>
                     <p>
-                        <a href="{% url 'index'%}"> Back to Home</a>
+                        <a href="{% url 'index'%}" class="btn btn-link">Back to Home</a>
+                        <a href="{% url 'scores' %}" class="btn btn-link">View Scores</a>
                     </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Pause Quiz Modal -->
+{% if user.is_authenticated %}
+<div class="modal fade" id="pauseModal" tabindex="-1" aria-labelledby="pauseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="pauseModalLabel">Pause Quiz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Do you want to pause your quiz session? You can resume later from your profile page.</p>
+                <form method="POST" action="{% url 'pause_session' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="question_id" value="{{ question_easy.id }}">
+                    <input type="hidden" name="category" value="{{ question_easy.question_category }}">
+                    <input type="hidden" name="difficulty" value="{{ question_easy.diff_level }}">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning">Save Progress</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

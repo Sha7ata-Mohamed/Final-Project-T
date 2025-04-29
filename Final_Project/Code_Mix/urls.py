@@ -11,4 +11,6 @@ urlpatterns = [
     path('scores/', views.show_scores, name='show_scores'),
     path('register/', views.register, name='register'),
     path('profile/', views.profile, name='profile'),
+    path('pause_session/', views.pause_session, name='pause_session'),
+    path('complete_session/', views.complete_session, name='complete_session'),
 ]

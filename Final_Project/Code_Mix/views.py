@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Questions, Options, UserAnswer
+from .models import Questions, Options, UserAnswer, QuizSession
 
 def index(request):
     return render(request, 'index.html')
@@ -27,6 +27,23 @@ def register(request):
 def profile(request):
     user_answers = UserAnswer.objects.filter(user=request.user).order_by('-created_at')
     
+    active_sessions = QuizSession.objects.filter(
+        user=request.user, 
+        is_completed=False,
+        is_paused=False
+    ).order_by('-last_activity')
+    
+    paused_sessions = QuizSession.objects.filter(
+        user=request.user, 
+        is_completed=False,
+        is_paused=True
+    ).order_by('-last_activity')
+    
+    completed_sessions = QuizSession.objects.filter(
+        user=request.user, 
+        is_completed=True
+    ).order_by('-end_time')
+    
     category_scores = UserAnswer.objects.filter(user=request.user).values('category').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         total_count=Count('id'),
@@ -36,6 +53,7 @@ def profile(request):
         )
     ).order_by('category')
     
+    # Calculate scores by difficulty
     difficulty_scores = UserAnswer.objects.filter(user=request.user).values('difficulty').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         total_count=Count('id'),
@@ -49,6 +67,9 @@ def profile(request):
         'user_answers': user_answers,
         'category_scores': category_scores,
         'difficulty_scores': difficulty_scores,
+        'active_sessions': active_sessions,
+        'paused_sessions': paused_sessions,
+        'completed_sessions': completed_sessions,
     }
     
     return render(request, 'registration/profile.html', context)
@@ -70,25 +91,56 @@ def choose_type(request, diff_level):
     
     return render(request, 'type.html')
 
+@login_required
 def easy_category(request, id):
-    diff_level = request.session.get('diff_level', 'easy')
+    diff_level = 'easy'
     category = request.GET.get('category', None)
     if not category:
         return redirect('choose_category')
     
-    questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
-    
-    if not questions.exists():
-        return redirect('choose_category')
-    
-    question_id = id
-    if not questions.filter(id=question_id).exists():
-        question_easy = questions.first()
+    if request.user.is_authenticated:
+        paused_session = QuizSession.get_paused_session(request.user, category, diff_level)
+        if paused_session and paused_session.current_question:
+            messages.info(request, "Resuming your previous session.")
+            question_easy = paused_session.current_question
+            paused_session.resume_session()
+        else:
+            active_session = QuizSession.get_active_session(request.user, category, diff_level)
+            if not active_session:
+                QuizSession.objects.create(
+                    user=request.user,
+                    category=category,
+                    difficulty=diff_level
+                )
+            
+            questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
+            if not questions.exists():
+                return redirect('choose_category')
+            
+            question_id = id
+            if not questions.filter(id=question_id).exists():
+                question_easy = questions.first()
+            else:
+                question_easy = questions.get(id=question_id)
     else:
-        question_easy = questions.get(id=question_id)
+        questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
+        if not questions.exists():
+            return redirect('choose_category')
+        
+        question_id = id
+        if not questions.filter(id=question_id).exists():
+            question_easy = questions.first()
+        else:
+            question_easy = questions.get(id=question_id)
     
+    questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
     next_questions = questions.filter(id__gt=question_easy.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
+    
+    if request.user.is_authenticated:
+        active_session = QuizSession.get_active_session(request.user, category, diff_level)
+        if active_session:
+            active_session.update_progress(question_easy)
     
     options = Options.objects.filter(question=question_easy)
     context = {
@@ -96,28 +148,65 @@ def easy_category(request, id):
         'options': options,
         'next_id': next_id,
         'category': category,
+        'has_paused_session': request.user.is_authenticated and QuizSession.objects.filter(
+            user=request.user, 
+            category=category, 
+            difficulty=diff_level,
+            is_paused=True
+        ).exists(),
     }
     return render(request, 'easy.html', context)
 
+@login_required
 def medium_category(request, id):
     diff_level = 'medium'
     category = request.GET.get('category', None)
     if not category:
         return redirect('choose_category')
     
-    questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
-    
-    if not questions.exists():
-        return redirect('choose_category')
-    
-    question_id = id
-    if not questions.filter(id=question_id).exists():
-        question_medium = questions.first()
+    if request.user.is_authenticated:
+        paused_session = QuizSession.get_paused_session(request.user, category, diff_level)
+        if paused_session and paused_session.current_question:
+            messages.info(request, "Resuming your previous session.")
+            question_medium = paused_session.current_question
+            paused_session.resume_session()
+        else:
+            active_session = QuizSession.get_active_session(request.user, category, diff_level)
+            if not active_session:
+                QuizSession.objects.create(
+                    user=request.user,
+                    category=category,
+                    difficulty=diff_level
+                )
+            
+            questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
+            if not questions.exists():
+                return redirect('choose_category')
+            
+            question_id = id
+            if not questions.filter(id=question_id).exists():
+                question_medium = questions.first()
+            else:
+                question_medium = questions.get(id=question_id)
     else:
-        question_medium = questions.get(id=question_id)
+        questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
+        if not questions.exists():
+            return redirect('choose_category')
+        
+        question_id = id
+        if not questions.filter(id=question_id).exists():
+            question_medium = questions.first()
+        else:
+            question_medium = questions.get(id=question_id)
     
+    questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
     next_questions = questions.filter(id__gt=question_medium.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
+    
+    if request.user.is_authenticated:
+        active_session = QuizSession.get_active_session(request.user, category, diff_level)
+        if active_session:
+            active_session.update_progress(question_medium)
     
     options = Options.objects.filter(question=question_medium)
     context = {
@@ -125,28 +214,65 @@ def medium_category(request, id):
         'options': options,
         'next_id': next_id,
         'category': category,
+        'has_paused_session': request.user.is_authenticated and QuizSession.objects.filter(
+            user=request.user, 
+            category=category, 
+            difficulty=diff_level,
+            is_paused=True
+        ).exists(),
     }
     return render(request, 'medium.html', context)
 
+@login_required
 def hard_category(request, id):
     diff_level = 'hard'
     category = request.GET.get('category', None)
     if not category:
         return redirect('choose_category')
     
-    questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
-    
-    if not questions.exists():
-        return redirect('choose_category')
-    
-    question_id = id
-    if not questions.filter(id=question_id).exists():
-        question_hard = questions.first()
+    if request.user.is_authenticated:
+        paused_session = QuizSession.get_paused_session(request.user, category, diff_level)
+        if paused_session and paused_session.current_question:
+            messages.info(request, "Resuming your previous session.")
+            question_hard = paused_session.current_question
+            paused_session.resume_session()
+        else:
+            active_session = QuizSession.get_active_session(request.user, category, diff_level)
+            if not active_session:
+                QuizSession.objects.create(
+                    user=request.user,
+                    category=category,
+                    difficulty=diff_level
+                )
+            
+            questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
+            if not questions.exists():
+                return redirect('choose_category')
+            
+            question_id = id
+            if not questions.filter(id=question_id).exists():
+                question_hard = questions.first()
+            else:
+                question_hard = questions.get(id=question_id)
     else:
-        question_hard = questions.get(id=question_id)
+        questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
+        if not questions.exists():
+            return redirect('choose_category')
+        
+        question_id = id
+        if not questions.filter(id=question_id).exists():
+            question_hard = questions.first()
+        else:
+            question_hard = questions.get(id=question_id)
     
+    questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
     next_questions = questions.filter(id__gt=question_hard.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
+    
+    if request.user.is_authenticated:
+        active_session = QuizSession.get_active_session(request.user, category, diff_level)
+        if active_session:
+            active_session.update_progress(question_hard)
     
     options = Options.objects.filter(question=question_hard)
     context = {
@@ -154,9 +280,16 @@ def hard_category(request, id):
         'options': options,
         'next_id': next_id,
         'category': category,
+        'has_paused_session': request.user.is_authenticated and QuizSession.objects.filter(
+            user=request.user, 
+            category=category, 
+            difficulty=diff_level,
+            is_paused=True
+        ).exists(),
     }
     return render(request, 'hard.html', context)
 
+@login_required
 def submit_answer(request):
     if request.method == 'POST':
         question_id = request.POST.get('question_id')
@@ -170,6 +303,15 @@ def submit_answer(request):
             user=request.user if request.user.is_authenticated else None
         )
         user_answer.save() 
+        
+        if request.user.is_authenticated:
+            active_session = QuizSession.get_active_session(
+                request.user, 
+                question.question_category, 
+                question.diff_level
+            )
+            if active_session:
+                active_session.update_progress(question)
         
         questions = Questions.objects.filter(
             diff_level=question.diff_level, 
@@ -185,6 +327,53 @@ def submit_answer(request):
             return redirect(f"{reverse('medium_category', args=[next_id])}?category={category}")
         else:
             return redirect(f"{reverse('hard_category', args=[next_id])}?category={category}")
+    
+    return redirect('index')
+
+@login_required
+def pause_session(request):
+    if request.method == 'POST':
+        question_id = request.POST.get('question_id')
+        category = request.POST.get('category')
+        difficulty = request.POST.get('difficulty')
+        
+        if not all([question_id, category, difficulty]):
+            messages.error(request, "Missing required information to pause session.")
+            return redirect('index')
+        
+        question = get_object_or_404(Questions, id=question_id)
+        
+        active_session = QuizSession.get_active_session(request.user, category, difficulty)
+        if active_session:
+            active_session.pause_session(question)
+            messages.success(request, "Your progress has been saved. You can resume later.")
+        else:
+            session = QuizSession.objects.create(
+                user=request.user,
+                category=category,
+                difficulty=difficulty
+            )
+            session.pause_session(question)
+            messages.success(request, "Your progress has been saved. You can resume later.")
+        
+        return redirect('profile')
+    
+    return redirect('index')
+
+@login_required
+def complete_session(request):
+    if request.method == 'POST':
+        session_id = request.POST.get('session_id')
+        
+        if not session_id:
+            messages.error(request, "Missing session ID.")
+            return redirect('profile')
+        
+        session = get_object_or_404(QuizSession, id=session_id, user=request.user)
+        session.complete_session()
+        messages.success(request, "Quiz session completed successfully!")
+        
+        return redirect('profile')
     
     return redirect('index')
 
