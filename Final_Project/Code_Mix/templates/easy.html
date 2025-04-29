@@ -38,25 +38,25 @@
                     <ul class="option-list">
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1" {% if selected_option == opt.option_1 %}checked{% endif %} required>
                                 <label class="form-check-label" for="option1">{{ opt.option_1 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2" {% if selected_option == opt.option_2 %}checked{% endif %}>
                                 <label class="form-check-label" for="option2">{{ opt.option_2 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3" {% if selected_option == opt.option_3 %}checked{% endif %}>
                                 <label class="form-check-label" for="option3">{{ opt.option_3 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4" {% if selected_option == opt.option_4 %}checked{% endif %}>
                                 <label class="form-check-label" for="option4">{{ opt.option_4 }}</label>
                             </div>
                         </li>
@@ -68,9 +68,42 @@
                     </div>
                     {% endfor %}
                 </form>
-                <div>
+                
+                {% if show_answer %}
+                <div class="mt-4">
+                    {% if is_correct %}
+                    <div class="alert alert-success">
+                        <h4 class="alert-heading">Correct!</h4>
+                        <p>Your answer "{{ selected_option }}" is correct.</p>
+                        {% if explanation %}
+                        <hr>
+                        <p class="mb-0">{{ explanation }}</p>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading">Incorrect</h4>
+                        <p>Your answer "{{ selected_option }}" is incorrect.</p>
+                        <button class="btn btn-sm btn-outline-danger mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#correctAnswer" aria-expanded="false" aria-controls="correctAnswer">
+                            Show Correct Answer
+                        </button>
+                        <div class="collapse" id="correctAnswer">
+                            <div class="card card-body bg-light">
+                                <p><strong>Correct Answer:</strong> {{ correct_answer }}</p>
+                                {% if explanation %}
+                                <p><strong>Explanation:</strong> {{ explanation }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
                     <p>
-                        <a href="{% url 'index'%}"> Back to Home</a>
+                        <a href="{% url 'index' %}" class="btn btn-link">Back to Home</a>
+                        <a href="{% url 'scores' %}" class="btn btn-link">View Scores</a>
                     </p>
                 </div>
             </div>
