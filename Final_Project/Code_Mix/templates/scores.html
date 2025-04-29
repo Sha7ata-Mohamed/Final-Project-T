@@ -36,7 +36,7 @@
                                 <div class="progress">
                                     <div class="progress-bar {% if category.percentage >= 80 %}bg-success{% elif category.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
                                         role="progressbar" 
-                                        style="width: '{{ category.percentage }}%;" 
+                                        style="width: {{ category.percentage }}%;" 
                                         aria-valuenow="{{ category.percentage }}" 
                                         aria-valuemin="0" 
                                         aria-valuemax="100">
@@ -82,7 +82,7 @@
                                 <div class="progress">
                                     <div class="progress-bar {% if difficulty.percentage >= 80 %}bg-success{% elif difficulty.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
                                         role="progressbar" 
-                                        style="width: '{{ difficulty.percentage }}%;" 
+                                        style="width: {{ difficulty.percentage }}%;" 
                                         aria-valuenow="{{ difficulty.percentage }}" 
                                         aria-valuemin="0" 
                                         aria-valuemax="100">
@@ -130,7 +130,7 @@
                                 <div class="progress">
                                     <div class="progress-bar {% if score.percentage >= 80 %}bg-success{% elif score.percentage >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
                                         role="progressbar" 
-                                        style="width: '{{ score.percentage }}%"
+                                        style="width: {{ score.percentage }}%;"
                                         aria-valuenow="{{ score.percentage }}" 
                                         aria-valuemin="0" 
                                         aria-valuemax="100">
