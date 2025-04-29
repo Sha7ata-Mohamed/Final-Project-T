@@ -64,6 +64,7 @@ class QuizSession(models.Model):
     """
     Model to track complete quiz attempts by users.
     This allows for better analytics and user history tracking.
+    Also supports saving progress so users can resume from where they left off.
     """
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_sessions')
@@ -75,6 +76,9 @@ class QuizSession(models.Model):
     total_questions = models.PositiveIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
     score_percentage = models.FloatField(default=0.0)
+    current_question = models.ForeignKey(Questions, on_delete=models.SET_NULL, null=True, blank=True, related_name='current_sessions')
+    last_activity = models.DateTimeField(auto_now=True)
+    is_paused = models.BooleanField(default=False)
     
     def __str__(self):
         return f"{self.user.username} - {self.category} - {self.difficulty} - {self.score_percentage}%"
@@ -103,7 +107,26 @@ class QuizSession(models.Model):
         """Mark the session as completed and calculate final score."""
         self.end_time = timezone.now()
         self.is_completed = True
+        self.is_paused = False
+        self.current_question = None
         self.calculate_score()
+        self.save()
+    
+    def pause_session(self, current_question):
+        """Save the user's progress to resume later."""
+        self.current_question = current_question
+        self.is_paused = True
+        self.save()
+    
+    def resume_session(self):
+        """Resume a paused quiz session."""
+        self.is_paused = False
+        self.save()
+        return self.current_question
+    
+    def update_progress(self, current_question):
+        """Update the current question without pausing."""
+        self.current_question = current_question
         self.save()
         
     def get_duration(self):
@@ -111,4 +134,26 @@ class QuizSession(models.Model):
         end = self.end_time or timezone.now()
         duration = end - self.start_time
         return round(duration.total_seconds() / 60, 2)  # Return minutes
+    
+    @classmethod
+    def get_active_session(cls, user, category, difficulty):
+        """Get the user's active (incomplete and not paused) session for this category/difficulty."""
+        return cls.objects.filter(
+            user=user,
+            category=category,
+            difficulty=difficulty,
+            is_completed=False,
+            is_paused=False
+        ).order_by('-start_time').first()
+    
+    @classmethod
+    def get_paused_session(cls, user, category, difficulty):
+        """Get the user's paused session for this category/difficulty."""
+        return cls.objects.filter(
+            user=user,
+            category=category,
+            difficulty=difficulty,
+            is_completed=False,
+            is_paused=True
+        ).order_by('-last_activity').first()
    
