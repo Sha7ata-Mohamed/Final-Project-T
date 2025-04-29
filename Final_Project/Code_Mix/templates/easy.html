@@ -10,12 +10,31 @@
     .option-list {
         list-style-type: none;
         padding-left: 0;
+        text-align: center;
     }
     .option-item {
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: center;
+    }
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
+    .form-check-input {
+        margin-right: 10px;
     }
     .actions {
         margin-top: 20px;
+        display: flex;
+        justify-content: center;
+    }
+    .question-header {
+        background-color: #28a745;
+        color: white;
+        padding: 10px;
+        border-radius: 5px 5px 0 0;
+        text-align: center;
     }
 </style>
 {% endblock %}
@@ -35,32 +54,32 @@
                     <input type="hidden" name="category" value="{{ question_easy.question_category }}">
                     
                     {% for opt in options %}
-                    <ul class="option-list">
-                        <li class="option-item">
+                    <div class="option-list">
+                        <div class="option-item">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1" {% if selected_option == opt.option_1 %}checked{% endif %} {% if show_answer %}disabled{% endif %} required>
-                                <label class="form-check-label" for="option1">{{ opt.option_1 }}</label>
+                                <label class="form-check-label" for="option1">A) {{ opt.option_1 }}</label>
                             </div>
-                        </li>
-                        <li class="option-item">
+                        </div>
+                        <div class="option-item">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2" {% if selected_option == opt.option_2 %}checked{% endif %} {% if show_answer %}disabled{% endif %}>
-                                <label class="form-check-label" for="option2">{{ opt.option_2 }}</label>
+                                <label class="form-check-label" for="option2">B) {{ opt.option_2 }}</label>
                             </div>
-                        </li>
-                        <li class="option-item">
+                        </div>
+                        <div class="option-item">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3" {% if selected_option == opt.option_3 %}checked{% endif %} {% if show_answer %}disabled{% endif %}>
-                                <label class="form-check-label" for="option3">{{ opt.option_3 }}</label>
+                                <label class="form-check-label" for="option3">C) {{ opt.option_3 }}</label>
                             </div>
-                        </li>
-                        <li class="option-item">
+                        </div>
+                        <div class="option-item">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4" {% if selected_option == opt.option_4 %}checked{% endif %} {% if show_answer %}disabled{% endif %}>
-                                <label class="form-check-label" for="option4">{{ opt.option_4 }}</label>
+                                <label class="form-check-label" for="option4">D) {{ opt.option_4 }}</label>
                             </div>
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                     
                     <div class="actions d-flex justify-content-between">
                         {% if not show_answer %}
