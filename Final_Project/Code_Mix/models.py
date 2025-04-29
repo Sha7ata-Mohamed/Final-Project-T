@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 
@@ -58,4 +59,56 @@ class UserAnswer(models.Model):
             option = Options.objects.get(question=self.question)
             self.is_correct = (self.selected_option == option.answer)
             super(UserAnswer, self).save(*args, **kwargs)
+
+class QuizSession(models.Model):
+    """
+    Model to track complete quiz attempts by users.
+    This allows for better analytics and user history tracking.
+    """
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_sessions')
+    category = models.CharField(max_length=10, choices=Questions.QUESTION_CATEGORY)
+    difficulty = models.CharField(max_length=10, choices=Questions.DIFFICULTY_LEVEL)
+    start_time = models.DateTimeField(default=timezone.now)
+    end_time = models.DateTimeField(null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    total_questions = models.PositiveIntegerField(default=0)
+    correct_answers = models.PositiveIntegerField(default=0)
+    score_percentage = models.FloatField(default=0.0)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.category} - {self.difficulty} - {self.score_percentage}%"
+    
+    def calculate_score(self):
+        """Calculate the score based on user answers in this session."""
+        user_answers = UserAnswer.objects.filter(
+            user=self.user,
+            category=self.category,
+            difficulty=self.difficulty,
+            created_at__gte=self.start_time,
+            created_at__lte=self.end_time or timezone.now()
+        )
+        
+        self.total_questions = user_answers.count()
+        self.correct_answers = user_answers.filter(is_correct=True).count()
+        
+        if self.total_questions > 0:
+            self.score_percentage = (self.correct_answers / self.total_questions) * 100
+        else:
+            self.score_percentage = 0
+        
+        return self.score_percentage
+    
+    def complete_session(self):
+        """Mark the session as completed and calculate final score."""
+        self.end_time = timezone.now()
+        self.is_completed = True
+        self.calculate_score()
+        self.save()
+        
+    def get_duration(self):
+        """Get the duration of the quiz session in minutes."""
+        end = self.end_time or timezone.now()
+        duration = end - self.start_time
+        return round(duration.total_seconds() / 60, 2)  # Return minutes
    
