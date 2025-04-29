@@ -28,7 +28,13 @@
                 <h2 class="h4 mb-0">Question: {{ question_hard.id }}</h2>
             </div>
             <div class="card-body">
-                <form method="POST" action="{% url 'submit_answer' %}">
+                {% if show_answer and not is_correct %}
+                <!-- If answer was wrong, hide the form and only show next button -->
+                <div class="actions d-flex justify-content-end mt-3">
+                    <a href="{% url 'hard_category' next_id %}?category={{ category }}" class="btn btn-primary">Next Question</a>
+                </div>
+                {% else %}
+                <form method="POST" action="{% url 'submit_answer' %}" {% if show_answer %}class="d-none"{% endif %}>
                     {% csrf_token %}
                     <input type="hidden" name="question_id" value="{{ question_hard.id }}">
                     <input type="hidden" name="difficulty" value="{{ question_hard.diff_level }}">
@@ -68,6 +74,7 @@
                     </div>
                     {% endfor %}
                 </form>
+                {% endif %}
                 
                 {% if show_answer %}
                 <div class="mt-4">
