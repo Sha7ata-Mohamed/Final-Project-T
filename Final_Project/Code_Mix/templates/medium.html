@@ -28,13 +28,7 @@
                 <h2 class="h4 mb-0">Question: {{ question_medium.id }}</h2>
             </div>
             <div class="card-body">
-                {% if show_answer and not is_correct %}
-                <!-- If answer was wrong, hide the form and only show next button -->
-                <div class="actions d-flex justify-content-end mt-3">
-                    <a href="{% url 'medium_category' next_id %}?category={{ category }}" class="btn btn-primary">Next Question</a>
-                </div>
-                {% else %}
-                <form method="POST" action="{% url 'submit_answer' %}" {% if show_answer %}class="d-none"{% endif %}>
+                <form method="POST" action="{% url 'submit_answer' %}" {% if show_answer %}onsubmit="return false;"{% endif %}>
                     {% csrf_token %}
                     <input type="hidden" name="question_id" value="{{ question_medium.id }}">
                     <input type="hidden" name="difficulty" value="{{ question_medium.diff_level }}">
@@ -44,37 +38,38 @@
                     <ul class="option-list">
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1" {% if selected_option == opt.option_1 %}checked{% endif %} required>
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1" {% if selected_option == opt.option_1 %}checked{% endif %} {% if show_answer %}disabled{% endif %} required>
                                 <label class="form-check-label" for="option1">{{ opt.option_1 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2" {% if selected_option == opt.option_2 %}checked{% endif %}>
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2" {% if selected_option == opt.option_2 %}checked{% endif %} {% if show_answer %}disabled{% endif %}>
                                 <label class="form-check-label" for="option2">{{ opt.option_2 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3" {% if selected_option == opt.option_3 %}checked{% endif %}>
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3" {% if selected_option == opt.option_3 %}checked{% endif %} {% if show_answer %}disabled{% endif %}>
                                 <label class="form-check-label" for="option3">{{ opt.option_3 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4" {% if selected_option == opt.option_4 %}checked{% endif %}>
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4" {% if selected_option == opt.option_4 %}checked{% endif %} {% if show_answer %}disabled{% endif %}>
                                 <label class="form-check-label" for="option4">{{ opt.option_4 }}</label>
                             </div>
                         </li>
                     </ul>
                     
                     <div class="actions d-flex justify-content-between">
+                        {% if not show_answer %}
                         <button type="submit" class="btn btn-primary">Submit Answer</button>
-                        <a href="{% url 'medium_category' next_id %}?category={{ category }}" class="btn btn-outline-secondary">Next Question</a>
+                        {% endif %}
+                        <a href="{% url 'medium_category' next_id %}?category={{ category }}" class="btn btn-{% if show_answer %}primary{% else %}outline-secondary{% endif %}">Next Question</a>
                     </div>
                     {% endfor %}
                 </form>
-                {% endif %}
                 
                 {% if show_answer %}
                 <div class="mt-4">
