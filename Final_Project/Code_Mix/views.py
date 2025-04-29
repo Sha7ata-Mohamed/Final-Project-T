@@ -25,7 +25,7 @@ def choose_type(request, diff_level):
     return render(request, 'type.html')
 
 def easy_category(request, id):
-    diff_level = request.session.get('diff_level', 'easy')
+    diff_level = 'easy'
     category = request.GET.get('category', None)
     if not category:
         return redirect('choose_category')
@@ -35,16 +35,18 @@ def easy_category(request, id):
     if not questions.exists():
         return redirect('choose_category')
 
-    question_id = id
-    if not questions.filter(id=question_id).exists():
+    try:
+        question_easy = questions.get(id=id)
+    except Questions.DoesNotExist:
         question_easy = questions.first()
-    else:
-        question_easy = questions.get(id=question_id)
-
+    except Questions.MultipleObjectsReturned:
+        question_easy = questions.filter(id=id).first()
+    
     next_questions = questions.filter(id__gt=question_easy.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
 
     options = Options.objects.filter(question=question_easy)
+    
     context = {
         'question_easy': question_easy,
         'options': options,
@@ -64,16 +66,18 @@ def medium_category(request, id):
     if not questions.exists():
         return redirect('choose_category')
 
-    question_id = id
-    if not questions.filter(id=question_id).exists():
+    try:
+        question_medium = questions.get(id=id)
+    except Questions.DoesNotExist:
         question_medium = questions.first()
-    else:
-        question_medium = questions.get(id=question_id)
-
+    except Questions.MultipleObjectsReturned:
+        question_medium = questions.filter(id=id).first()
+    
     next_questions = questions.filter(id__gt=question_medium.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
 
     options = Options.objects.filter(question=question_medium)
+    
     context = {
         'question_medium': question_medium,
         'options': options,
@@ -93,16 +97,18 @@ def hard_category(request, id):
     if not questions.exists():
         return redirect('choose_category')
 
-    question_id = id
-    if not questions.filter(id=question_id).exists():
+    try:
+        question_hard = questions.get(id=id)
+    except Questions.DoesNotExist:
         question_hard = questions.first()
-    else:
-        question_hard = questions.get(id=question_id)
-
+    except Questions.MultipleObjectsReturned:
+        question_hard = questions.filter(id=id).first()
+    
     next_questions = questions.filter(id__gt=question_hard.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
 
     options = Options.objects.filter(question=question_hard)
+    
     context = {
         'question_hard': question_hard,
         'options': options,
@@ -118,7 +124,7 @@ def submit_answer(request):
         category = request.POST.get('category')
         difficulty = request.POST.get('difficulty')
 
-        question = get_object_or_404(Questions, id=question_id)
+        question = get_object_or_404(Questions, id=question_id, diff_level=difficulty, question_category=category)
         option = get_object_or_404(Options, question=question)
         
         user_answer = UserAnswer(
@@ -128,15 +134,14 @@ def submit_answer(request):
         user_answer.save()
         
         questions = Questions.objects.filter(
-            diff_level=question.diff_level,
-            question_category=question.question_category
+            diff_level=difficulty,
+            question_category=category
         ).order_by('id')
         
         next_questions = questions.filter(id__gt=question.id)
         next_id = next_questions.first().id if next_questions.exists() else questions.first().id
         
         context = {
-            'question': question,
             'options': Options.objects.filter(question=question),
             'selected_option': selected_option,
             'is_correct': user_answer.is_correct,
