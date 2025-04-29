@@ -20,6 +20,7 @@
                         <tr>
                             <th>Category</th>
                             <th>Correct Answers</th>
+                            <th>Wrong Answers</th>
                             <th>Total Questions</th>
                             <th>Score</th>
                             <th>Progress</th>
@@ -30,6 +31,7 @@
                         <tr>
                             <td><strong>{{ category.category }}</strong></td>
                             <td>{{ category.correct_count }}</td>
+                            <td>{{ category.total_count|add:"-"|add:category.correct_count }}</td>
                             <td>{{ category.total_count }}</td>
                             <td>{{ category.percentage|floatformat:1 }}%</td>
                             <td>
@@ -66,6 +68,7 @@
                         <tr>
                             <th>Difficulty</th>
                             <th>Correct Answers</th>
+                            <th>Wrong Answers</th>
                             <th>Total Questions</th>
                             <th>Score</th>
                             <th>Progress</th>
@@ -76,6 +79,7 @@
                         <tr>
                             <td><strong>{{ difficulty.difficulty }}</strong></td>
                             <td>{{ difficulty.correct_count }}</td>
+                            <td>{{ difficulty.total_count|add:"-"|add:difficulty.correct_count }}</td>
                             <td>{{ difficulty.total_count }}</td>
                             <td>{{ difficulty.percentage|floatformat:1 }}%</td>
                             <td>
@@ -113,6 +117,7 @@
                             <th>Category</th>
                             <th>Difficulty</th>
                             <th>Correct Answers</th>
+                            <th>Wrong Answers</th>
                             <th>Total Questions</th>
                             <th>Score</th>
                             <th>Progress</th>
@@ -124,6 +129,7 @@
                             <td><strong>{{ score.category }}</strong></td>
                             <td>{{ score.difficulty }}</td>
                             <td>{{ score.correct_count }}</td>
+                            <td>{{ score.total_count|add:"-"|add:score.correct_count }}</td>
                             <td>{{ score.total_count }}</td>
                             <td>{{ score.percentage|floatformat:1 }}%</td>
                             <td>
