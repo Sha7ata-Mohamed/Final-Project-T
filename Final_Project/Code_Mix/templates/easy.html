@@ -4,7 +4,6 @@
 {% block title %}Code Mix - Easy Question{% endblock %}
 
 {% block header %}{{ question_easy.question }}{% endblock %}
-{% block subheader %}HTML Quiz - Easy Level{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -26,7 +25,7 @@
     <div class="col-lg-8">
         <div class="card shadow">
             <div class="card-header bg-success text-white">
-                <h2 class="h4 mb-0">Question: {{ question_easy.id }}</h2>
+                <h2 class="h4 mb-0">Question: {{question_easy.id}}</h2>
             </div>
             <div class="card-body">
                 <form method="POST" action="{% url 'submit_answer' %}">
@@ -34,41 +33,79 @@
                     <input type="hidden" name="question_id" value="{{ question_easy.id }}">
                     <input type="hidden" name="difficulty" value="{{ question_easy.diff_level }}">
                     <input type="hidden" name="category" value="{{ question_easy.question_category }}">
-                    
+
                     {% for opt in options %}
                     <ul class="option-list">
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1" {% if selected_option == opt.option_1 %}checked{% endif %} required>
                                 <label class="form-check-label" for="option1">{{ opt.option_1 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2" {% if selected_option == opt.option_2 %}checked{% endif %}>
                                 <label class="form-check-label" for="option2">{{ opt.option_2 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3" {% if selected_option == opt.option_3 %}checked{% endif %}>
                                 <label class="form-check-label" for="option3">{{ opt.option_3 }}</label>
                             </div>
                         </li>
                         <li class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4">
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4" {% if selected_option == opt.option_4 %}checked{% endif %}>
                                 <label class="form-check-label" for="option4">{{ opt.option_4 }}</label>
                             </div>
                         </li>
                     </ul>
-                    
+
                     <div class="actions d-flex justify-content-between">
                         <button type="submit" class="btn btn-primary">Submit Answer</button>
                         <a href="{% url 'easy_category' next_id %}?category={{ category }}" class="btn btn-outline-secondary">Next Question</a>
                     </div>
                     {% endfor %}
                 </form>
+                
+                {% if show_answer %}
+                <div class="mt-4">
+                    {% if is_correct %}
+                    <div class="alert alert-success">
+                        <h4 class="alert-heading">Correct!</h4>
+                        <p>Your answer "{{ selected_option }}" is correct.</p>
+                        {% if explanation %}
+                        <hr>
+                        <p class="mb-0">{{ explanation }}</p>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-danger">
+                        <h4 class="alert-heading">Incorrect</h4>
+                        <p>Your answer "{{ selected_option }}" is incorrect.</p>
+                        <button class="btn btn-sm btn-outline-danger mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#correctAnswer" aria-expanded="false" aria-controls="correctAnswer">
+                            Show Correct Answer
+                        </button>
+                        <div class="collapse" id="correctAnswer">
+                            <div class="card card-body bg-light">
+                                <p><strong>Correct Answer:</strong> {{ correct_answer }}</p>
+                                {% if explanation %}
+                                <p><strong>Explanation:</strong> {{ explanation }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <p>
+                        <a href="{% url 'index' %}" class="btn btn-link">Back to Home</a>
+                        <a href="{% url 'scores' %}" class="btn btn-link">View Scores</a>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
