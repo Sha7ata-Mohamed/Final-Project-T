@@ -9,4 +9,6 @@ urlpatterns = [
     path('hard/<int:id>/', views.hard_category, name='hard_category'),
     path('submit_answer/', views.submit_answer, name='submit_answer'),
     path('scores/', views.show_scores, name='show_scores'),
+    path('register/', views.register, name='register'),
+    path('profile/', views.profile, name='profile'),
 ]

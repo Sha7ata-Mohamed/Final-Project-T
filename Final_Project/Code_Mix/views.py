@@ -2,10 +2,56 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count,Q, ExpressionWrapper, FloatField
 from django.db.models.functions import Cast
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.contrib import messages
 from .models import Questions, Options, UserAnswer
 
 def index(request):
     return render(request, 'index.html')
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Account created for {username}! You can now log in.')
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def profile(request):
+    user_answers = UserAnswer.objects.filter(user=request.user).order_by('-created_at')
+    
+    category_scores = UserAnswer.objects.filter(user=request.user).values('category').annotate(
+        correct_count=Count('id', filter=Q(is_correct=True)),
+        total_count=Count('id'),
+        percentage=ExpressionWrapper(
+            100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
+            output_field=FloatField()
+        )
+    ).order_by('category')
+    
+    difficulty_scores = UserAnswer.objects.filter(user=request.user).values('difficulty').annotate(
+        correct_count=Count('id', filter=Q(is_correct=True)),
+        total_count=Count('id'),
+        percentage=ExpressionWrapper(
+            100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
+            output_field=FloatField()
+        )
+    ).order_by('difficulty')
+    
+    context = {
+        'user_answers': user_answers,
+        'category_scores': category_scores,
+        'difficulty_scores': difficulty_scores,
+    }
+    
+    return render(request, 'registration/profile.html', context)
 
 def choose_category(request):
     diff_level = request.GET.get('diff_level', None)
@@ -120,7 +166,8 @@ def submit_answer(request):
         question = get_object_or_404(Questions, id=question_id)
         user_answer = UserAnswer(
             question=question,
-            selected_option=selected_option
+            selected_option=selected_option,
+            user=request.user if request.user.is_authenticated else None
         )
         user_answer.save() 
         

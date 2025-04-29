@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -37,6 +38,7 @@ class Options(models.Model):
    
 class UserAnswer(models.Model):
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='answers', null=True, blank=True)
     question = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='user_answers')
     selected_option = models.CharField(max_length=100, null=True, blank=True)
     is_correct = models.BooleanField(default=False)
@@ -56,3 +58,4 @@ class UserAnswer(models.Model):
             option = Options.objects.get(question=self.question)
             self.is_correct = (self.selected_option == option.answer)
             super(UserAnswer, self).save(*args, **kwargs)
+   
