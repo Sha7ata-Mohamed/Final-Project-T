@@ -1,0 +1,67 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+          <h2 class="card-title h4 mb-0">User Profile: {{ user.username }}</h2>
+        </div>
+        <div class="card-body">
+          <h3 class="h5 mb-3">Your Quiz Progress</h3>
+          
+          {% if combined_scores %}
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Category</th>
+                    <th>Difficulty</th>
+                    <th>Correct Answers</th>
+                    <th>Wrong Answers</th>
+                    <th>Total Questions</th>
+                    <th>Score</th>
+                    <th>Progress</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for score in combined_scores %}
+                    <tr>
+                      <td>{{ score.category }}</td>
+                      <td>{{ score.difficulty }}</td>
+                      <td class="text-success">{{ score.correct_count }}</td>
+                      <td class="text-danger">{{ score.wrong_count }}</td>
+                      <td>{{ score.total_count }}</td>
+                      <td>{{ score.percentage|floatformat:1 }}%</td>
+                      <td>
+                        <div class="progress">
+                          <div class="progress-bar {% if score.percentage < 40 %}bg-danger{% elif score.percentage < 70 %}bg-warning{% else %}bg-success{% endif %}" 
+                               role="progressbar" 
+                               style="width: {{ score.percentage }}%" 
+                               aria-valuenow="{{ score.percentage }}" 
+                               aria-valuemin="0" 
+                               aria-valuemax="100">{{ score.percentage|floatformat:0 }}%</div>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <p>You haven't taken any quizzes yet. <a href="{% url 'home' %}" class="alert-link">Start a quiz now</a> to see your progress here.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="text-center mt-4">
+        <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
+        <a href="{% url 'scores' %}" class="btn btn-outline-primary">View All Scores</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

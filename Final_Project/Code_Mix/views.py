@@ -2,6 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count,Q, ExpressionWrapper, FloatField
 from django.db.models.functions import Cast
 from django.urls import reverse
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
 from .models import Questions, Options, UserAnswer
 
 def home(request):
@@ -201,6 +204,66 @@ def submit_answer(request):
             return redirect(f"{reverse('hard_category', args=[question_id])}?category={category}&show_answer=True&selected_option={selected_option}&is_correct={is_correct}")
     
     return redirect('home')
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/signup.html', {'form': form})
+
+@login_required
+def profile(request):
+    user_scores = UserAnswer.objects.filter(user=request.user).values('category', 'difficulty').annotate(
+        correct_count=Count('id', filter=Q(is_correct=True)),
+        answered_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False))
+    ).order_by('category', 'difficulty')
+    
+    total_questions = Questions.objects.values('question_category', 'diff_level').annotate(
+        question_count=Count('id')
+    ).order_by('question_category', 'diff_level')
+    
+    question_counts = {}
+    for item in total_questions:
+        key = (item['question_category'], item['diff_level'])
+        question_counts[key] = item['question_count']
+    
+    combined_scores = []
+    for score in user_scores:
+        key = (score['category'], score['difficulty'])
+        total_count = question_counts.get(key, 0)
+        
+        if score['answered_count'] > total_count:
+            total_count = score['answered_count']
+        
+        percentage = 0
+        if score['answered_count'] > 0:
+            percentage = (score['correct_count'] / score['answered_count']) * 100
+            
+        combined_scores.append({
+            'category': score['category'],
+            'difficulty': score['difficulty'],
+            'correct_count': score['correct_count'],
+            'wrong_count': score['wrong_count'],
+            'answered_count': score['answered_count'],
+            'total_count': total_count,
+            'percentage': percentage
+        })
+    
+    context = {
+        'user': request.user,
+        'combined_scores': combined_scores
+    }
+    
+    return render(request, 'profile.html', context)
 
 def show_scores(request):
     total_questions = Questions.objects.values('question_category', 'diff_level').annotate(
