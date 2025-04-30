@@ -4,8 +4,8 @@ from django.db.models.functions import Cast
 from django.urls import reverse
 from .models import Questions, Options, UserAnswer
 
-def index(request):
-    return render(request, 'index.html')
+def home(request):
+    return render(request, 'Home.html')
 
 def choose_category(request):
     diff_level = request.GET.get('diff_level', None)
@@ -197,12 +197,13 @@ def submit_answer(request):
         else:
             return redirect(f"{reverse('hard_category', args=[question_id])}?category={category}&show_answer=True&selected_option={selected_option}&is_correct={is_correct}")
     
-    return redirect('index')
+    return redirect('Home')
 
 def show_scores(request):
     category_scores = UserAnswer.objects.values('category').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         total_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False)),
         percentage=ExpressionWrapper(
             100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
             output_field=FloatField()
@@ -212,6 +213,7 @@ def show_scores(request):
     difficulty_scores = UserAnswer.objects.values('difficulty').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         total_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False)),
         percentage=ExpressionWrapper(
             100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
             output_field=FloatField()
@@ -221,6 +223,7 @@ def show_scores(request):
     combined_scores = UserAnswer.objects.values('category', 'difficulty').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         total_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False)),
         percentage=ExpressionWrapper(
             100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
             output_field=FloatField()

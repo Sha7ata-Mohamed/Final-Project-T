@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.home, name='home'),
     path('type/<str:diff_level>/', views.choose_type, name='choose_type'),
     path('choose_category/', views.choose_category, name='choose_category'),
     path('easy/<int:id>/', views.easy_category, name='easy_category'),
