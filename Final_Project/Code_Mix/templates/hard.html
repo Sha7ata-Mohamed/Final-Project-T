@@ -106,9 +106,14 @@
                         <h4 class="alert-heading">Incorrect</h4>
                         <p>Your answer "{{ selected_option }}" is incorrect.</p>
                         {% if explanation %}
-                        <div class="explanation-box p-3 mb-3 bg-light border rounded">
-                            <p class="mb-1"><strong>Why was this answer wrong?</strong></p>
-                            <p class="mb-0">{{ explanation }}</p>
+                        <button class="btn btn-sm btn-outline-info mb-2 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#explanationBox" aria-expanded="false" aria-controls="explanationBox">
+                            Show Explanation
+                        </button>
+                        <div class="collapse" id="explanationBox">
+                            <div class="explanation-box p-3 mb-3 bg-light border rounded">
+                                <p class="mb-1"><strong>Why was this answer wrong?</strong></p>
+                                <p class="mb-0">{{ explanation }}</p>
+                            </div>
                         </div>
                         {% endif %}
                         <button class="btn btn-sm btn-outline-danger mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#correctAnswer" aria-expanded="false" aria-controls="correctAnswer">
