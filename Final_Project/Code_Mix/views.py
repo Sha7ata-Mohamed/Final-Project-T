@@ -37,7 +37,7 @@ def profile(request):
         'user_progress': user_progress,
         'user_scores': user_scores
     }
-    return render(request, 'Code_Mix/profile.html', context)
+    return render(request, 'profile.html', context)
 
 def home(request):
     user_progress = None
