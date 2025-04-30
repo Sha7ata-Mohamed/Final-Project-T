@@ -1,9 +1,8 @@
 {% extends "base_generic.html" %}
 {% load static %}
+{% load form_filters %}
 
-{% block title %}
-  <title>Code Mix - Login</title>
-{% endblock %}
+{% block title %}Code Mix - Login{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -35,15 +34,15 @@
         <form method="post" action="{% url 'login' %}" class="mt-4">
           {% csrf_token %}
           <div class="mb-3 row">
-            <label for="id_username" class="col-sm-3 col-form-label">Username:</label>
+            <label for="{{ form.username.id_for_label }}" class="col-sm-3 col-form-label">Username:</label>
             <div class="col-sm-9">
-              <input type="text" name="username" class="form-control" required id="id_username">
+              {{ form.username|addclass:"form-control" }}
             </div>
           </div>
           <div class="mb-3 row">
-            <label for="id_password" class="col-sm-3 col-form-label">Password:</label>
+            <label for="{{ form.password.id_for_label }}" class="col-sm-3 col-form-label">Password:</label>
             <div class="col-sm-9">
-              <input type="password" name="password" class="form-control" required id="id_password">
+              {{ form.password|addclass:"form-control" }}
             </div>
           </div>
           <div class="d-grid gap-2 d-md-flex justify-content-md-end">

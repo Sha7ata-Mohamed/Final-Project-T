@@ -355,34 +355,6 @@ def submit_answer(request):
     return redirect('home')
 
 def show_scores(request):
-    category_scores = UserAnswer.objects.values('category').annotate(
-        correct_count=Count('id', filter=Q(is_correct=True)),
-        answered_count=Count('id'),
-        wrong_count=Count('id', filter=Q(is_correct=False)),
-        percentage=ExpressionWrapper(
-            100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
-            output_field=FloatField()
-        )
-    ).order_by('category')
-    
-    difficulty_scores = UserAnswer.objects.values('difficulty').annotate(
-        correct_count=Count('id', filter=Q(is_correct=True)),
-        answered_count=Count('id'),
-        wrong_count=Count('id', filter=Q(is_correct=False)),
-        percentage=ExpressionWrapper(
-            100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
-            output_field=FloatField()
-        )
-    ).order_by('difficulty')
-    
-    total_questions_by_category = Questions.objects.values('question_category').annotate(
-        question_count=Count('id')
-    ).order_by('question_category')
-    
-    total_questions_by_difficulty = Questions.objects.values('diff_level').annotate(
-        question_count=Count('id')
-    ).order_by('diff_level')
-    
     total_questions = Questions.objects.values('question_category', 'diff_level').annotate(
         question_count=Count('id')
     ).order_by('question_category', 'diff_level')
@@ -392,13 +364,14 @@ def show_scores(request):
         key = (item['question_category'], item['diff_level'])
         question_counts[key] = item['question_count']
     
-    combined_scores = []
-    user_scores = UserAnswer.objects.values('category', 'difficulty').annotate(
+    user_filter = Q(user=request.user) if request.user.is_authenticated else Q()
+    user_scores = UserAnswer.objects.filter(user_filter).values('category', 'difficulty').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         answered_count=Count('id'),
         wrong_count=Count('id', filter=Q(is_correct=False))
     ).order_by('category', 'difficulty')
     
+    combined_scores = []
     for score in user_scores:
         key = (score['category'], score['difficulty'])
         total_count = question_counts.get(key, 0)
@@ -430,15 +403,47 @@ def show_scores(request):
                 'percentage': 0
             })
     
-    for score in category_scores:
-        category = score['category']
-        total_count = sum(item['question_count'] for item in total_questions_by_category if item['question_category'] == category)
-        score['total_questions'] = total_count
+    category_scores = []
+    for category in set(item['question_category'] for item in total_questions):
+        category_items = [s for s in combined_scores if s['category'] == category]
+        total_correct = sum(item['correct_count'] for item in category_items)
+        total_wrong = sum(item['wrong_count'] for item in category_items)
+        total_answered = sum(item['answered_count'] for item in category_items)
+        total_questions_count = sum(item['total_count'] for item in category_items)
+        
+        percentage = 0
+        if total_answered > 0:
+            percentage = (total_correct / total_answered) * 100
+            
+        category_scores.append({
+            'category': category,
+            'correct_count': total_correct,
+            'wrong_count': total_wrong,
+            'answered_count': total_answered,
+            'total_questions': total_questions_count,
+            'percentage': percentage
+        })
     
-    for score in difficulty_scores:
-        difficulty = score['difficulty']
-        total_count = sum(item['question_count'] for item in total_questions_by_difficulty if item['diff_level'] == difficulty)
-        score['total_questions'] = total_count
+    difficulty_scores = []
+    for difficulty in set(item['diff_level'] for item in total_questions):
+        difficulty_items = [s for s in combined_scores if s['difficulty'] == difficulty]
+        total_correct = sum(item['correct_count'] for item in difficulty_items)
+        total_wrong = sum(item['wrong_count'] for item in difficulty_items)
+        total_answered = sum(item['answered_count'] for item in difficulty_items)
+        total_questions_count = sum(item['total_count'] for item in difficulty_items)
+        
+        percentage = 0
+        if total_answered > 0:
+            percentage = (total_correct / total_answered) * 100
+            
+        difficulty_scores.append({
+            'difficulty': difficulty,
+            'correct_count': total_correct,
+            'wrong_count': total_wrong,
+            'answered_count': total_answered,
+            'total_questions': total_questions_count,
+            'percentage': percentage
+        })
     
     context = {
         'category_scores': category_scores,
