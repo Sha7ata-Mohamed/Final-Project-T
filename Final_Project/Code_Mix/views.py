@@ -180,6 +180,7 @@ def submit_answer(request):
         is_correct = (selected_option == option.answer)
         
         user_answer = UserAnswer(
+            user=request.user if request.user.is_authenticated else None,
             question=question,
             selected_option=selected_option,
             category=category or question.question_category,

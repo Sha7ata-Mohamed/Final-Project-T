@@ -54,5 +54,5 @@ class UserAnswer(models.Model):
 
             option = Options.objects.get(question=self.question)
             self.is_correct = (self.selected_option == option.answer)
-            super(UserAnswer, self).save(*args, **kwargs)
+        super(UserAnswer, self).save(*args, **kwargs)
    
