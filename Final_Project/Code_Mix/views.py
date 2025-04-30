@@ -178,7 +178,10 @@ def submit_answer(request):
         
         user_answer = UserAnswer(
             question=question,
-            selected_option=selected_option
+            selected_option=selected_option,
+            category=category or question.question_category,
+            difficulty=difficulty or question.diff_level,
+            is_correct=is_correct
         )
         user_answer.save()
         
