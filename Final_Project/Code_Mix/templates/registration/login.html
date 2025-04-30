@@ -1,37 +1,62 @@
-{% extends "base_generic.html" %}
+{% extends "base.html" %}
+{% load static %}
+{% load form_filters %}
+
+{% block title %}Code Mix - Login{% endblock %}
 
 {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h2 class="card-title h4 mb-0">Login</h2>
+      </div>
+      <div class="card-body">
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            <p>Your username and password didn't match. Please try again.</p>
+          </div>
+        {% endif %}
 
-  {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-  {% endif %}
+        {% if next %}
+          {% if user.is_authenticated %}
+            <div class="alert alert-warning">
+              <p>Your account doesn't have access to this page. To proceed,
+              please login with an account that has access.</p>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <p>Please login to see this page.</p>
+            </div>
+          {% endif %}
+        {% endif %}
 
-  {% if next %}
-    {% if user.is_authenticated %}
-      <p>Your account doesn't have access to this page. To proceed,
-      please login with an account that has access.</p>
-    {% else %}
-      <p>Please login to see this page.</p>
-    {% endif %}
-  {% endif %}
+        <form method="post" action="{% url 'login' %}" class="mt-4">
+          {% csrf_token %}
+          <div class="mb-3 row">
+            <label for="id_username" class="col-sm-3 col-form-label">Username:</label>
+            <div class="col-sm-9">
+              <input type="text" name="username" class="form-control" required id="id_username">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="id_password" class="col-sm-3 col-form-label">Password:</label>
+            <div class="col-sm-9">
+              <input type="password" name="password" class="form-control" required id="id_password">
+            </div>
+          </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <input type="submit" value="Login" class="btn btn-primary">
+            <input type="hidden" name="next" value="{{ next }}">
+          </div>
+        </form>
 
-  <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <table>
-      <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-      </tr>
-      <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-      </tr>
-    </table>
-    <input type="submit" value="login">
-    <input type="hidden" name="next" value="{{ next }}">
-  </form>
-
-  {# Assumes you set up the password_reset view in your URLConf #}
-  <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
-
+        <div class="mt-3 text-center">
+          <p>Don't have an account? <a href="{% url 'signup' %}" class="link-primary">Sign up</a></p>
+          <p><a href="{% url 'password_reset' %}" class="link-secondary">Forgot password?</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

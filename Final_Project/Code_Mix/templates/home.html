@@ -7,7 +7,25 @@
 {% block subheader %}Hope you are ready for your <b>ADVENTURE</b>{% endblock %}
 
 {% block content %}
-    <div class="row justify-content-center">
+    <div class="row">
+        <!-- Left side: CODE-MIX logo and info -->
+        <div class="col-md-3">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">CODE-MIX</h2>
+                </div>
+                <div class="card-body text-center">
+                    <div class="logo-container mb-3">
+                        <span class="display-4">
+                            <span class="text-primary">CODE</span><span class="text-danger">-</span><span class="text-success">MIX</span>
+                        </span>
+                    </div>
+                    <p class="mb-0">Test your programming knowledge with our interactive quizzes!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Center: Quiz options -->
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
@@ -20,6 +38,65 @@
                         <a href="{% url 'choose_category' %}?diff_level=hard" class="btn btn-danger btn-lg">Hard</a>
                         <a href="/scores/" class="btn btn-info btn-lg">View Scores</a>
                     </div>
+                    
+                    {% if user_progress %}
+                    <div class="mt-4">
+                        <div class="card bg-light">
+                            <div class="card-header">
+                                <h3 class="h5 mb-0">Resume Your Quiz</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>You have an unfinished quiz:</p>
+                                <ul class="list-group mb-3">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Category:
+                                        <span class="badge bg-primary rounded-pill">{{ user_progress.category|title }}</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Difficulty:
+                                        <span class="badge bg-{% if user_progress.difficulty == 'easy' %}success{% elif user_progress.difficulty == 'medium' %}warning{% else %}danger{% endif %} rounded-pill">{{ user_progress.difficulty|title }}</span>
+                                    </li>
+                                </ul>
+                                
+                                {% if user_progress.difficulty == 'easy' %}
+                                <a href="{% url 'easy_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
+                                {% elif user_progress.difficulty == 'medium' %}
+                                <a href="{% url 'medium_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
+                                {% elif user_progress.difficulty == 'hard' %}
+                                <a href="{% url 'hard_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right side: User profile -->
+        <div class="col-md-3">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Your Profile</h2>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <div class="text-center mb-3">
+                            <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
+                            <h3 class="h5 mt-2">{{ user.username }}</h3>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-primary">View Full Profile</a>
+                            <a href="{% url 'scores' %}" class="btn btn-outline-info">View Your Scores</a>
+                        </div>
+                    {% else %}
+                        <p class="text-center mb-3">You are not logged in</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                            <a href="{% url 'signup' %}" class="btn btn-outline-primary">Sign Up</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
