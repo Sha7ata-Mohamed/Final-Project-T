@@ -30,7 +30,7 @@ class Options(models.Model):
     option_3 = models.CharField(max_length=100, null=True, blank=True)
     option_4 = models.CharField(max_length=100, null=True, blank=True)
     answer = models.CharField(max_length=100, null=True, blank=True)
-    explanation = models.TextField(null=True, blank=True, help_text="Explanation for the correct answer")
+    explanation = models.TextField(null=True, blank=True, help_text="Explanation for the answer (shown for both correct and incorrect answers)")
     def __str__(self):
         return f"{self.id} - {self.answer} - {self.question}"
 

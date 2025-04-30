@@ -105,15 +105,18 @@
                     <div class="alert alert-danger">
                         <h4 class="alert-heading">Incorrect</h4>
                         <p>Your answer "{{ selected_option }}" is incorrect.</p>
+                        {% if explanation %}
+                        <div class="explanation-box p-3 mb-3 bg-light border rounded">
+                            <p class="mb-1"><strong>Why was this answer wrong?</strong></p>
+                            <p class="mb-0">{{ explanation }}</p>
+                        </div>
+                        {% endif %}
                         <button class="btn btn-sm btn-outline-danger mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#correctAnswer" aria-expanded="false" aria-controls="correctAnswer">
                             Show Correct Answer
                         </button>
                         <div class="collapse" id="correctAnswer">
                             <div class="card card-body bg-light">
                                 <p><strong>Correct Answer:</strong> {{ correct_answer }}</p>
-                                {% if explanation %}
-                                <p><strong>Explanation:</strong> {{ explanation }}</p>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
