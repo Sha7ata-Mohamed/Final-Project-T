@@ -2,16 +2,48 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count,Q, ExpressionWrapper, FloatField
 from django.db.models.functions import Cast
 from django.urls import reverse
-from .models import Questions, Options, UserAnswer
+from .models import Questions, Options, UserAnswer, QuizProgress
 
 def home(request):
-    return render(request, 'Home.html')
+    user_progress = None
+    if request.user.is_authenticated:
+        user_progress = QuizProgress.objects.filter(user=request.user).order_by('-last_updated').first()
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        user_progress = QuizProgress.objects.filter(session_key=session_key).order_by('-last_updated').first()
+    
+    context = {
+        'user_progress': user_progress
+    }
+    return render(request, 'home.html', context)
 
 def choose_category(request):
     diff_level = request.GET.get('diff_level', None)
     if diff_level:
         request.session['diff_level'] = diff_level
-    return render(request, 'type.html')
+        
+    if request.user.is_authenticated:
+        user_progress = QuizProgress.objects.filter(
+            user=request.user,
+            difficulty=diff_level
+        ).order_by('-last_updated').first()
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        user_progress = QuizProgress.objects.filter(
+            session_key=session_key,
+            difficulty=diff_level
+        ).order_by('-last_updated').first()
+    
+    context = {
+        'user_progress': user_progress
+    }
+    return render(request, 'type.html', context)
 
 def choose_type(request, diff_level):
     default_question_id = 1
@@ -40,6 +72,25 @@ def easy_category(request, id):
         question_easy = questions.first()
     else:
         question_easy = questions.get(id=question_id)
+    
+    if request.user.is_authenticated:
+        QuizProgress.objects.update_or_create(
+            user=request.user,
+            category=category,
+            difficulty=diff_level,
+            defaults={'current_question_id': question_easy.id}
+        )
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        QuizProgress.objects.update_or_create(
+            session_key=session_key,
+            category=category,
+            difficulty=diff_level,
+            defaults={'current_question_id': question_easy.id}
+        )
     
     next_questions = questions.filter(id__gt=question_easy.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
@@ -88,6 +139,25 @@ def medium_category(request, id):
     else:
         question_medium = questions.get(id=question_id)
     
+    if request.user.is_authenticated:
+        QuizProgress.objects.update_or_create(
+            user=request.user,
+            category=category,
+            difficulty=diff_level,
+            defaults={'current_question_id': question_medium.id}
+        )
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        QuizProgress.objects.update_or_create(
+            session_key=session_key,
+            category=category,
+            difficulty=diff_level,
+            defaults={'current_question_id': question_medium.id}
+        )
+    
     next_questions = questions.filter(id__gt=question_medium.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
     
@@ -134,6 +204,25 @@ def hard_category(request, id):
         question_hard = questions.first()
     else:
         question_hard = questions.get(id=question_id)
+    
+    if request.user.is_authenticated:
+        QuizProgress.objects.update_or_create(
+            user=request.user,
+            category=category,
+            difficulty=diff_level,
+            defaults={'current_question_id': question_hard.id}
+        )
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        QuizProgress.objects.update_or_create(
+            session_key=session_key,
+            category=category,
+            difficulty=diff_level,
+            defaults={'current_question_id': question_hard.id}
+        )
     
     next_questions = questions.filter(id__gt=question_hard.id)
     next_id = next_questions.first().id if next_questions.exists() else questions.first().id
