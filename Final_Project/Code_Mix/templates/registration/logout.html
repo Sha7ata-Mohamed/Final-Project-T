@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Code Mix - Logged Out{% endblock %}
+
+{% block header %}Logged Out{% endblock %}
+{% block subheader %}You have been successfully logged out{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div class="card-body">
+        <div class="alert alert-success">
+          <p>You have been successfully logged out.</p>
+        </div>
+        
+        <div class="mt-3 text-center">
+          <a href="{% url 'login' %}" class="btn btn-primary">Login Again</a>
+          <a href="{% url 'index' %}" class="btn btn-outline-secondary">Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
