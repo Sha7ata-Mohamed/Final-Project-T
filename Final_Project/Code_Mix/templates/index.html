@@ -1,27 +1,19 @@
-{% extends "base.html" %}
+{% extends "base_generic.html" %}
 {% load static %}
-
-{% block title %}Code Mix - Welcome{% endblock %}
-
-{% block header %}Welcome to Code Mix{% endblock %}
-{% block subheader %}Hope you are ready for your <b>ADVENTURE</b>{% endblock %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
 
 {% block content %}
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="h4 mb-0">Choose a difficulty to start:</h2>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-3">
-                        <a href="{% url 'choose_category' %}?diff_level=easy" class="btn btn-success btn-lg">Easy</a>
-                        <a href="{% url 'choose_category' %}?diff_level=medium" class="btn btn-warning btn-lg">Medium</a>
-                        <a href="{% url 'choose_category' %}?diff_level=hard" class="btn btn-danger btn-lg">Hard</a>
-                        <a href="/scores/" class="btn btn-info btn-lg">View Scores</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <h1>Local Library Home</h1>
+  <p>
+    Welcome to LocalLibrary, a website developed by
+    <em>Mozilla Developer Network</em>!
+  </p>
+  <h2>Dynamic content</h2>
+  <p>The library has the following record counts:</p>
+  <ul>
+    <li><strong>Books:</strong> {{ num_books }}</li>
+    <li><strong>Copies:</strong> {{ num_instances }}</li>
+    <li><strong>Copies available:</strong> {{ num_instances_available }}</li>
+    <li><strong>Authors:</strong> {{ num_authors }}</li>
+  </ul>
 {% endblock %}

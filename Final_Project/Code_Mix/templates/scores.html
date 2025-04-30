@@ -30,7 +30,7 @@
                         <td><strong>{{ score.category }}</strong></td>
                         <td>{{ score.difficulty }}</td>
                         <td class="text-success">{{ score.correct_count }}</td>
-                        <td class="text-danger">{{ score.total_count|add:"-"|add:score.correct_count }}</td>
+                        <td class="text-danger">{{ score.wrong_count }}</td>
                         <td>{{ score.total_count }}</td>
                         <td>{{ score.percentage|floatformat:1 }}%</td>
                         <td>
@@ -57,7 +57,7 @@
     </div>
     
     <div class="text-center home-btn mt-4">
-        <a href="{% url 'index' %}" class="btn btn-primary btn-lg">Back to Home</a>
+        <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Back to Home</a>
     </div>
 </div>
 {% endblock %}
