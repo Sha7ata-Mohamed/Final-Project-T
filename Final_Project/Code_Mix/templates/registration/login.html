@@ -1,37 +1,54 @@
 {% extends "base_generic.html" %}
+{% load form_filters %}
 
 {% block content %}
-
-  {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
-  {% endif %}
-
-  {% if next %}
-    {% if user.is_authenticated %}
-      <p>Your account doesn't have access to this page. To proceed,
-      please login with an account that has access.</p>
-    {% else %}
-      <p>Please login to see this page.</p>
+<div class="card shadow">
+  <div class="card-header bg-primary text-white">
+    <h2 class="card-title h4 mb-0">Login</h2>
+  </div>
+  <div class="card-body">
+    {% if form.errors %}
+      <div class="alert alert-danger">
+        <p>Your username and password didn't match. Please try again.</p>
+      </div>
     {% endif %}
-  {% endif %}
 
-  <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <table>
-      <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-      </tr>
-      <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-      </tr>
-    </table>
-    <input type="submit" value="login">
-    <input type="hidden" name="next" value="{{ next }}">
-  </form>
+    {% if next %}
+      {% if user.is_authenticated %}
+        <div class="alert alert-warning">
+          <p>Your account doesn't have access to this page. To proceed,
+          please login with an account that has access.</p>
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <p>Please login to see this page.</p>
+        </div>
+      {% endif %}
+    {% endif %}
 
-  {# Assumes you set up the password_reset view in your URLConf #}
-  <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    <form method="post" action="{% url 'login' %}" class="mt-4">
+      {% csrf_token %}
+      <div class="mb-3 row">
+        <label for="{{ form.username.id_for_label }}" class="col-sm-3 col-form-label">{{ form.username.label }}</label>
+        <div class="col-sm-9">
+          {{ form.username|addclass:"form-control" }}
+        </div>
+      </div>
+      <div class="mb-3 row">
+        <label for="{{ form.password.id_for_label }}" class="col-sm-3 col-form-label">{{ form.password.label }}</label>
+        <div class="col-sm-9">
+          {{ form.password|addclass:"form-control" }}
+        </div>
+      </div>
+      <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <input type="submit" value="Login" class="btn btn-primary">
+        <input type="hidden" name="next" value="{{ next }}">
+      </div>
+    </form>
 
+    <div class="mt-3">
+      <p><a href="{% url 'password_reset' %}" class="link-primary">Lost password?</a></p>
+    </div>
+  </div>
+</div>
 {% endblock %}
