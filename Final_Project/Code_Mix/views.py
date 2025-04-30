@@ -37,7 +37,7 @@ def profile(request):
         'user_progress': user_progress,
         'user_scores': user_scores
     }
-    return render(request, 'profile.html', context)
+    return render(request, 'Code_Mix/profile.html', context)
 
 def home(request):
     user_progress = None
@@ -111,7 +111,11 @@ def easy_category(request, id):
             )
     
     next_questions = questions.filter(id__gt=question_easy.id) if question_easy else None
-    next_id = next_questions.first().id if next_questions and next_questions.exists() else questions.first().id if questions.exists() else None
+    next_id = None
+    if next_questions and next_questions.exists() and next_questions.first():
+        next_id = next_questions.first().id
+    elif questions.exists() and questions.first():
+        next_id = questions.first().id
     
     options = Options.objects.filter(question=question_easy) if question_easy else None
     
@@ -123,9 +127,10 @@ def easy_category(request, id):
     explanation = None
     if show_answer and options and options.first():
         option = options.first()
-        correct_answer = option.answer
-        if hasattr(option, 'explanation'):
-            explanation = option.explanation
+        if option:
+            correct_answer = option.answer
+            if hasattr(option, 'explanation'):
+                explanation = option.explanation
     
     context = {
         'question_easy': question_easy,
@@ -179,7 +184,11 @@ def medium_category(request, id):
             )
     
     next_questions = questions.filter(id__gt=question_medium.id) if question_medium else None
-    next_id = next_questions.first().id if next_questions and next_questions.exists() else questions.first().id if questions.exists() else None
+    next_id = None
+    if next_questions and next_questions.exists() and next_questions.first():
+        next_id = next_questions.first().id
+    elif questions.exists() and questions.first():
+        next_id = questions.first().id
     
     options = Options.objects.filter(question=question_medium) if question_medium else None
     
@@ -191,9 +200,10 @@ def medium_category(request, id):
     explanation = None
     if show_answer and options and options.first():
         option = options.first()
-        correct_answer = option.answer
-        if hasattr(option, 'explanation'):
-            explanation = option.explanation
+        if option:
+            correct_answer = option.answer
+            if hasattr(option, 'explanation'):
+                explanation = option.explanation
     
     context = {
         'question_medium': question_medium,
@@ -247,7 +257,11 @@ def hard_category(request, id):
             )
     
     next_questions = questions.filter(id__gt=question_hard.id) if question_hard else None
-    next_id = next_questions.first().id if next_questions and next_questions.exists() else questions.first().id if questions.exists() else None
+    next_id = None
+    if next_questions and next_questions.exists() and next_questions.first():
+        next_id = next_questions.first().id
+    elif questions.exists() and questions.first():
+        next_id = questions.first().id
     
     options = Options.objects.filter(question=question_hard) if question_hard else None
     
@@ -259,9 +273,10 @@ def hard_category(request, id):
     explanation = None
     if show_answer and options and options.first():
         option = options.first()
-        correct_answer = option.answer
-        if hasattr(option, 'explanation'):
-            explanation = option.explanation
+        if option:
+            correct_answer = option.answer
+            if hasattr(option, 'explanation'):
+                explanation = option.explanation
     
     context = {
         'question_hard': question_hard,
@@ -303,7 +318,11 @@ def submit_answer(request):
         ).order_by('id')
         
         next_questions = questions.filter(id__gt=question.id)
-        next_id = next_questions.first().id if next_questions.exists() else questions.first().id
+        next_id = None
+        if next_questions.exists() and next_questions.first():
+            next_id = next_questions.first().id
+        elif questions.exists() and questions.first():
+            next_id = questions.first().id
         
         if next_id:
             if request.user.is_authenticated:
