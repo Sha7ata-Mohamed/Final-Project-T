@@ -30,7 +30,7 @@
                         <td><strong>{{ score.category }}</strong></td>
                         <td>{{ score.difficulty }}</td>
                         <td class="text-success">{{ score.correct_count }}</td>
-                        <td class="text-danger">{{ score.total_count|add:"-"|add:score.correct_count }}</td>
+                        <td class="text-danger">{{ score.wrong_count }}</td>
                         <td>{{ score.total_count }}</td>
                         <td>{{ score.percentage|floatformat:1 }}%</td>
                         <td>

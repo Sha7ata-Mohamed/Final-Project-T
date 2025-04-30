@@ -203,6 +203,7 @@ def show_scores(request):
     category_scores = UserAnswer.objects.values('category').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         total_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False)),
         percentage=ExpressionWrapper(
             100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
             output_field=FloatField()
@@ -212,6 +213,7 @@ def show_scores(request):
     difficulty_scores = UserAnswer.objects.values('difficulty').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         total_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False)),
         percentage=ExpressionWrapper(
             100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
             output_field=FloatField()
@@ -221,6 +223,7 @@ def show_scores(request):
     combined_scores = UserAnswer.objects.values('category', 'difficulty').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
         total_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False)),
         percentage=ExpressionWrapper(
             100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
             output_field=FloatField()
