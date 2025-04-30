@@ -223,6 +223,9 @@ def show_scores(request):
         key = (score['category'], score['difficulty'])
         total_count = question_counts.get(key, 0)
         
+        if score['answered_count'] > total_count:
+            total_count = score['answered_count']
+        
         percentage = 0
         if score['answered_count'] > 0:
             percentage = (score['correct_count'] / score['answered_count']) * 100
