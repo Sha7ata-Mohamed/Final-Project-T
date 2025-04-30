@@ -47,12 +47,27 @@ class UserAnswer(models.Model):
     def __str__(self):
         return f"{self.id} - {self.question} - {self.is_correct}"
     def save(self, *args, **kwargs):
-        if self.question_id:
-            question_obj = Questions.objects.get(id=self.question_id)
-            self.category = question_obj.question_category
-            self.difficulty = question_obj.diff_level
+        if self.question:
+            self.category = self.question.question_category
+            self.difficulty = self.question.diff_level
 
             option = Options.objects.get(question=self.question)
             self.is_correct = (self.selected_option == option.answer)
-            super(UserAnswer, self).save(*args, **kwargs)
+        super(UserAnswer, self).save(*args, **kwargs)
+   
+class QuizProgress(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_progress', null=True, blank=True)
+    session_key = models.CharField(max_length=100, null=True, blank=True, help_text="For anonymous users")
+    category = models.CharField(max_length=10, choices=Questions.QUESTION_CATEGORY, null=True, blank=True)
+    difficulty = models.CharField(max_length=10, choices=Questions.DIFFICULTY_LEVEL, null=True, blank=True)
+    current_question_id = models.IntegerField(null=True, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = [['user', 'category', 'difficulty'], ['session_key', 'category', 'difficulty']]
+        
+    def __str__(self):
+        user_identifier = self.user.username if self.user else f"Session: {self.session_key}"
+        return f"{user_identifier} - {self.category} - {self.difficulty} - Question: {self.current_question_id}"
    

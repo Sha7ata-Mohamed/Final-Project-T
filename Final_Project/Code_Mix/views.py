@@ -2,10 +2,58 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count,Q, ExpressionWrapper, FloatField
 from django.db.models.functions import Cast
 from django.urls import reverse
-from .models import Questions, Options, UserAnswer
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
+from django.utils import timezone
+from .models import Questions, Options, UserAnswer, QuizProgress
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/signup.html', {'form': form})
+
+def profile(request):
+    user_progress = None
+    if request.user.is_authenticated:
+        user_progress = QuizProgress.objects.filter(user=request.user).order_by('-last_updated')
+    
+    user_scores = UserAnswer.objects.filter(user=request.user).values('category', 'difficulty').annotate(
+        correct_count=Count('id', filter=Q(is_correct=True)),
+        total_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False)),
+    ).order_by('category', 'difficulty')
+    
+    context = {
+        'user_progress': user_progress,
+        'user_scores': user_scores
+    }
+    return render(request, 'profile.html', context)
 
 def home(request):
-    return render(request, 'Home.html')
+    user_progress = None
+    if request.user.is_authenticated:
+        user_progress = QuizProgress.objects.filter(user=request.user).order_by('-last_updated').first()
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        user_progress = QuizProgress.objects.filter(session_key=session_key).order_by('-last_updated').first()
+    
+    context = {
+        'user_progress': user_progress
+    }
+    return render(request, 'home.html', context)
 
 def choose_category(request):
     diff_level = request.GET.get('diff_level', None)
@@ -41,10 +89,31 @@ def easy_category(request, id):
     else:
         question_easy = questions.get(id=question_id)
     
-    next_questions = questions.filter(id__gt=question_easy.id)
-    next_id = next_questions.first().id if next_questions.exists() else questions.first().id
+    if question_easy:
+        if request.user.is_authenticated:
+            progress, created = QuizProgress.objects.update_or_create(
+                user=request.user,
+                category=category,
+                difficulty=diff_level,
+                defaults={'current_question_id': question_easy.id, 'last_updated': timezone.now()}
+            )
+        else:
+            session_key = request.session.session_key
+            if not session_key:
+                request.session.create()
+                session_key = request.session.session_key
+                
+            progress, created = QuizProgress.objects.update_or_create(
+                session_key=session_key,
+                category=category,
+                difficulty=diff_level,
+                defaults={'current_question_id': question_easy.id, 'last_updated': timezone.now()}
+            )
     
-    options = Options.objects.filter(question=question_easy)
+    next_questions = questions.filter(id__gt=question_easy.id) if question_easy else None
+    next_id = next_questions.first().id if next_questions and next_questions.exists() else questions.first().id if questions.exists() else None
+    
+    options = Options.objects.filter(question=question_easy) if question_easy else None
     
     show_answer = request.GET.get('show_answer', False)
     selected_option = request.GET.get('selected_option', None)
@@ -52,7 +121,7 @@ def easy_category(request, id):
     
     correct_answer = None
     explanation = None
-    if show_answer:
+    if show_answer and options and options.first():
         option = options.first()
         correct_answer = option.answer
         if hasattr(option, 'explanation'):
@@ -88,10 +157,31 @@ def medium_category(request, id):
     else:
         question_medium = questions.get(id=question_id)
     
-    next_questions = questions.filter(id__gt=question_medium.id)
-    next_id = next_questions.first().id if next_questions.exists() else questions.first().id
+    if question_medium:
+        if request.user.is_authenticated:
+            progress, created = QuizProgress.objects.update_or_create(
+                user=request.user,
+                category=category,
+                difficulty=diff_level,
+                defaults={'current_question_id': question_medium.id, 'last_updated': timezone.now()}
+            )
+        else:
+            session_key = request.session.session_key
+            if not session_key:
+                request.session.create()
+                session_key = request.session.session_key
+                
+            progress, created = QuizProgress.objects.update_or_create(
+                session_key=session_key,
+                category=category,
+                difficulty=diff_level,
+                defaults={'current_question_id': question_medium.id, 'last_updated': timezone.now()}
+            )
     
-    options = Options.objects.filter(question=question_medium)
+    next_questions = questions.filter(id__gt=question_medium.id) if question_medium else None
+    next_id = next_questions.first().id if next_questions and next_questions.exists() else questions.first().id if questions.exists() else None
+    
+    options = Options.objects.filter(question=question_medium) if question_medium else None
     
     show_answer = request.GET.get('show_answer', False)
     selected_option = request.GET.get('selected_option', None)
@@ -99,7 +189,7 @@ def medium_category(request, id):
     
     correct_answer = None
     explanation = None
-    if show_answer:
+    if show_answer and options and options.first():
         option = options.first()
         correct_answer = option.answer
         if hasattr(option, 'explanation'):
@@ -135,10 +225,31 @@ def hard_category(request, id):
     else:
         question_hard = questions.get(id=question_id)
     
-    next_questions = questions.filter(id__gt=question_hard.id)
-    next_id = next_questions.first().id if next_questions.exists() else questions.first().id
+    if question_hard:
+        if request.user.is_authenticated:
+            progress, created = QuizProgress.objects.update_or_create(
+                user=request.user,
+                category=category,
+                difficulty=diff_level,
+                defaults={'current_question_id': question_hard.id, 'last_updated': timezone.now()}
+            )
+        else:
+            session_key = request.session.session_key
+            if not session_key:
+                request.session.create()
+                session_key = request.session.session_key
+                
+            progress, created = QuizProgress.objects.update_or_create(
+                session_key=session_key,
+                category=category,
+                difficulty=diff_level,
+                defaults={'current_question_id': question_hard.id, 'last_updated': timezone.now()}
+            )
     
-    options = Options.objects.filter(question=question_hard)
+    next_questions = questions.filter(id__gt=question_hard.id) if question_hard else None
+    next_id = next_questions.first().id if next_questions and next_questions.exists() else questions.first().id if questions.exists() else None
+    
+    options = Options.objects.filter(question=question_hard) if question_hard else None
     
     show_answer = request.GET.get('show_answer', False)
     selected_option = request.GET.get('selected_option', None)
@@ -146,7 +257,7 @@ def hard_category(request, id):
     
     correct_answer = None
     explanation = None
-    if show_answer:
+    if show_answer and options and options.first():
         option = options.first()
         correct_answer = option.answer
         if hasattr(option, 'explanation'):
@@ -180,6 +291,10 @@ def submit_answer(request):
             question=question,
             selected_option=selected_option
         )
+        
+        if request.user.is_authenticated:
+            user_answer.user = request.user
+            
         user_answer.save()
         
         questions = Questions.objects.filter(
@@ -190,6 +305,27 @@ def submit_answer(request):
         next_questions = questions.filter(id__gt=question.id)
         next_id = next_questions.first().id if next_questions.exists() else questions.first().id
         
+        if next_id:
+            if request.user.is_authenticated:
+                progress, created = QuizProgress.objects.update_or_create(
+                    user=request.user,
+                    category=category,
+                    difficulty=difficulty,
+                    defaults={'current_question_id': next_id, 'last_updated': timezone.now()}
+                )
+            else:
+                session_key = request.session.session_key
+                if not session_key:
+                    request.session.create()
+                    session_key = request.session.session_key
+                    
+                progress, created = QuizProgress.objects.update_or_create(
+                    session_key=session_key,
+                    category=category,
+                    difficulty=difficulty,
+                    defaults={'current_question_id': next_id, 'last_updated': timezone.now()}
+                )
+        
         if difficulty == 'easy':
             return redirect(f"{reverse('easy_category', args=[question_id])}?category={category}&show_answer=True&selected_option={selected_option}&is_correct={is_correct}")
         elif difficulty == 'medium':
@@ -197,12 +333,12 @@ def submit_answer(request):
         else:
             return redirect(f"{reverse('hard_category', args=[question_id])}?category={category}&show_answer=True&selected_option={selected_option}&is_correct={is_correct}")
     
-    return redirect('Home')
+    return redirect('home')
 
 def show_scores(request):
     category_scores = UserAnswer.objects.values('category').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
-        total_count=Count('id'),
+        answered_count=Count('id'),
         wrong_count=Count('id', filter=Q(is_correct=False)),
         percentage=ExpressionWrapper(
             100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
@@ -212,7 +348,7 @@ def show_scores(request):
     
     difficulty_scores = UserAnswer.objects.values('difficulty').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
-        total_count=Count('id'),
+        answered_count=Count('id'),
         wrong_count=Count('id', filter=Q(is_correct=False)),
         percentage=ExpressionWrapper(
             100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
@@ -220,15 +356,70 @@ def show_scores(request):
         )
     ).order_by('difficulty')
     
-    combined_scores = UserAnswer.objects.values('category', 'difficulty').annotate(
+    total_questions_by_category = Questions.objects.values('question_category').annotate(
+        question_count=Count('id')
+    ).order_by('question_category')
+    
+    total_questions_by_difficulty = Questions.objects.values('diff_level').annotate(
+        question_count=Count('id')
+    ).order_by('diff_level')
+    
+    total_questions = Questions.objects.values('question_category', 'diff_level').annotate(
+        question_count=Count('id')
+    ).order_by('question_category', 'diff_level')
+    
+    question_counts = {}
+    for item in total_questions:
+        key = (item['question_category'], item['diff_level'])
+        question_counts[key] = item['question_count']
+    
+    combined_scores = []
+    user_scores = UserAnswer.objects.values('category', 'difficulty').annotate(
         correct_count=Count('id', filter=Q(is_correct=True)),
-        total_count=Count('id'),
-        wrong_count=Count('id', filter=Q(is_correct=False)),
-        percentage=ExpressionWrapper(
-            100.0 * Cast(Count('id', filter=Q(is_correct=True)), FloatField()) / Cast(Count('id'), FloatField()),
-            output_field=FloatField()
-        )
+        answered_count=Count('id'),
+        wrong_count=Count('id', filter=Q(is_correct=False))
     ).order_by('category', 'difficulty')
+    
+    for score in user_scores:
+        key = (score['category'], score['difficulty'])
+        total_count = question_counts.get(key, 0)
+        
+        percentage = 0
+        if score['answered_count'] > 0:
+            percentage = (score['correct_count'] / score['answered_count']) * 100
+            
+        combined_scores.append({
+            'category': score['category'],
+            'difficulty': score['difficulty'],
+            'correct_count': score['correct_count'],
+            'wrong_count': score['wrong_count'],
+            'answered_count': score['answered_count'],
+            'total_count': total_count,
+            'percentage': percentage
+        })
+    
+    for item in total_questions:
+        key = (item['question_category'], item['diff_level'])
+        if not any(s['category'] == key[0] and s['difficulty'] == key[1] for s in combined_scores):
+            combined_scores.append({
+                'category': item['question_category'],
+                'difficulty': item['diff_level'],
+                'correct_count': 0,
+                'wrong_count': 0,
+                'answered_count': 0,
+                'total_count': item['question_count'],
+                'percentage': 0
+            })
+    
+    for score in category_scores:
+        category = score['category']
+        total_count = sum(item['question_count'] for item in total_questions_by_category if item['question_category'] == category)
+        score['total_questions'] = total_count
+    
+    for score in difficulty_scores:
+        difficulty = score['difficulty']
+        total_count = sum(item['question_count'] for item in total_questions_by_difficulty if item['diff_level'] == difficulty)
+        score['total_questions'] = total_count
     
     context = {
         'category_scores': category_scores,
