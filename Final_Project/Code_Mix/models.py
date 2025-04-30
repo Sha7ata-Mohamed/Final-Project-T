@@ -11,7 +11,6 @@ class Questions(models.Model):
         ('html', 'HTML'),
         ('python', 'Python'),
         ('django', 'Django'),
-        ('isom', 'Isom'),
     )
     diff_level = models.CharField(max_length=10, choices=DIFFICULTY_LEVEL, null=True, blank=True)
     question_category = models.CharField(max_length=10, choices=QUESTION_CATEGORY, null=True, blank=True)
