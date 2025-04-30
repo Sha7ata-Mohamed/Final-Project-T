@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Code Mix - Resume Quiz{% endblock %}
+
+{% block header %}Resume Your Quiz{% endblock %}
+{% block subheader %}Continue from where you left off{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Your Saved Progress</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if progress_list %}
+                            <div class="list-group">
+                                {% for progress in progress_list %}
+                                    <a href="{% url 'load_progress' progress.id %}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ progress.category|title }} - {{ progress.difficulty|title }}</h5>
+                                            <small>{{ progress.updated_at|date:"F j, Y, g:i a" }}</small>
+                                        </div>
+                                        <p class="mb-1">Question #{{ progress.current_question.id }}: {{ progress.current_question.title }}</p>
+                                        <small>Last updated: {{ progress.updated_at|timesince }} ago</small>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <p>You don't have any saved progress yet. Start a quiz and use the "Save Progress" button to save your progress.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'index' %}" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+{% endblock %}

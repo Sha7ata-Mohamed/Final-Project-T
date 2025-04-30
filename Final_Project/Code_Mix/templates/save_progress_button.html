@@ -1,0 +1,11 @@
+{% if user.is_authenticated %}
+    <form action="{% url 'save_progress' %}" method="post" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="question_id" value="{{ question_id }}">
+        <input type="hidden" name="category" value="{{ category }}">
+        <input type="hidden" name="difficulty" value="{{ difficulty }}">
+        <button type="submit" class="btn btn-warning">Save Progress</button>
+    </form>
+{% else %}
+    <a href="{% url 'resume_progress' %}" class="btn btn-warning disabled" title="Login to save progress">Save Progress</a>
+{% endif %}
