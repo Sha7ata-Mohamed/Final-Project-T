@@ -77,6 +77,7 @@ def easy_category(request, id):
     category = request.GET.get('category', None)
     if not category:
         return redirect('choose_category')
+    category = category.lower() 
     
     questions = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
     
