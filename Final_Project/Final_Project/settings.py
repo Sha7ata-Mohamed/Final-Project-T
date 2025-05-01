@@ -28,6 +28,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Add the following
+#AUTHENTICATION_BACKENDS = [
+ #   'django.contrib.auth.backends.ModelBackend',
+  #  'allauth.account.auth_backends.AuthenticationBackend',
+#]
+
 
 # Application definition
 
@@ -50,6 +56,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+SITE_ID = 1
+
 
 ROOT_URLCONF = 'Final_Project.urls'
 
@@ -131,3 +141,5 @@ STATICFILES_DIRS = [
 LOGIN_REDIRECT_URL = '/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+#ACCOUNT_EMAIL_VERIFICATION = "none"
