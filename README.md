@@ -38,7 +38,7 @@ final-project-404-not-found created by GitHub Classroom
  ### Relationship  
   - It will be one to many meaning 1Q has many options / many options has 1Q 
 
-  ![Image](https://github.com/user-attachments/assets/eb7f647d-3a0b-483e-92f9-1b750c05ab16)
+  C:\Users\sha7a\OneDrive\Desktop\ERD.png
 ### Bounces
   - I used **Count,Q,ExpressionWrapper and FloatField** to calculate the scores and for calculating the percentage of scores
   - I used **Cast** to from Django ORM to change (convert) the data type of a database field inside a Django query(Display data in a new format without changing it in the database itself.)
