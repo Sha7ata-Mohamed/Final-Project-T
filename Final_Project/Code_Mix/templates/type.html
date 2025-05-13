@@ -6,54 +6,63 @@
 {% block header %}Which language do you want to test?{% endblock %}
 {% block subheader %}Select a programming language to begin your quiz{% endblock %}
 
+{% block extra_css %}
+<style>
+  body {
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+  }
+  .card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .badge-cat {
+    font-size: 0.9rem;
+    padding: 0.5em 0.8em;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
+<div class="container py-5">
+  <div class="row justify-content-center">
     <div class="col-lg-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h2 class="h4 mb-0">Available Categories</h2>
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    <a href="{% url 'easy_category' 1 %}?category=html" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        HTML
-                        <span class="badge bg-primary rounded-pill">Web</span>
-                    </a>
-                    <a href="{% url 'easy_category' 1 %}?category=python" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        Python
-                        <span class="badge bg-success rounded-pill">Programming</span>
-                    </a>
-                    <a href="{% url 'easy_category' 1 %}?category=django" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        Django
-                        <span class="badge bg-info rounded-pill">Framework</span>
-                    </a>
-                </div>
-                
-                {% if user_progress and user_progress.category %}
-                <div class="mt-4">
-                    <div class="card bg-light">
-                        <div class="card-header">
-                            <h3 class="h5 mb-0">Resume Your Quiz</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>You have an unfinished quiz in <strong>{{ user_progress.category|title }}</strong>:</p>
-                            
-                            {% if user_progress.difficulty == 'easy' %}
-                            <a href="{% url 'easy_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
-                            {% elif user_progress.difficulty == 'medium' %}
-                            <a href="{% url 'medium_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
-                            {% elif user_progress.difficulty == 'hard' %}
-                            <a href="{% url 'hard_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-            <div class="card-footer text-center">
-                <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
-            </div>
+      <div class="card card-hover shadow rounded-4 overflow-hidden">
+        <div class="card-header bg-primary bg-gradient text-white">
+          <h4 class="mb-0">Available Categories</h4>
         </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <a href="{% url diff_level|add:'_category' 1 %}?category=html" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+              HTML
+              <span class="badge bg-info badge-cat rounded-pill">Web</span>
+            </a>
+            <a href="{% url diff_level|add:'_category' 1 %}?category=python" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+              Python
+              <span class="badge bg-success badge-cat rounded-pill">Programming</span>
+            </a>
+            <a href="{% url diff_level|add:'_category' 1 %}?category=django" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+              Django
+              <span class="badge bg-info badge-cat rounded-pill">Framework</span>
+            </a>
+          </div>
+          {% if user_progress and user_progress.category %}
+          <div class="border-top p-3 bg-light">
+            <h5 class="mb-3">Resume Your Quiz</h5>
+            <p>You have an unfinished quiz in <strong>{{ user_progress.category|title }}</strong> ({{ user_progress.difficulty|title }}).</p>
+            <a href="{% url user_progress.difficulty|add:'_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-warning btn-lg w-100 rounded-pill shadow-sm">
+              <i class="bi bi-arrow-repeat me-2"></i>Resume Quiz
+            </a>
+          </div>
+          {% endif %}
+        </div>
+        <div class="card-footer text-center bg-white">
+          <a href="{% url 'home' %}" class="btn btn-outline-primary shadow-sm">Back to Home</a>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
+
+
