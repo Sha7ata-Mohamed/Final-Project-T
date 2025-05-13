@@ -1,72 +1,80 @@
 from django.db import models
 from django.contrib.auth.models import User
-class Questions(models.Model):
-    DIFFICULTY_LEVEL = (
-        ('easy', 'Easy'),
-        ('medium', 'Medium'),
-        ('hard', 'Hard'),
-    )
 
-    QUESTION_CATEGORY = (
-        ('html', 'HTML'),
-        ('python', 'Python'),
-        ('django', 'Django'),
-    )
-    diff_level = models.CharField(max_length=10, choices=DIFFICULTY_LEVEL, null=True, blank=True)
-    question_category = models.CharField(max_length=10, choices=QUESTION_CATEGORY, null=True, blank=True)
+# Define choices for difficulty level and question category
+DIFFICULTY_LEVEL = [
+    ('easy', 'Easy'),
+    ('medium', 'Medium'),
+    ('hard', 'Hard'),
+]
+
+QUESTION_CATEGORY = [
+    ('html', 'HTML'),
+    ('python', 'Python'),
+    ('django', 'Django'),
+]
+
+class Questions(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
     question = models.CharField(max_length=1000, null=True, blank=True)
+    diff_level = models.CharField(max_length=10, choices=DIFFICULTY_LEVEL, null=True, blank=True)
+    question_category = models.CharField(max_length=10, choices=QUESTION_CATEGORY, null=True, blank=True)
+    answered_by = models.ManyToManyField(User, through='UserAnswer', related_name='answered_questions', blank=True)
 
     def __str__(self):
-        return f"{self.id} - {self.diff_level} - {self.question_category} - {self.question} - {self.title}"
+        return f"{self.id}: {self.diff_level} - {self.question_category} ({self.question})"
 
 class Options(models.Model):
-    id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='options', null=True, blank=True)
-    option_1 = models.CharField(max_length=100, null=True, blank=True)
-    option_2 = models.CharField(max_length=100, null=True, blank=True)
-    option_3 = models.CharField(max_length=100, null=True, blank=True)
-    option_4 = models.CharField(max_length=100, null=True, blank=True)
-    answer = models.CharField(max_length=100, null=True, blank=True)
-    explanation = models.TextField(null=True, blank=True, help_text="Explanation for the correct answer")
+    question = models.OneToOneField(Questions, on_delete=models.CASCADE, null=True, blank=True, help_text="Question for which this option is valid")
+    option_1 = models.CharField(max_length=255, default='')
+    option_2 = models.CharField(max_length=255, default='')
+    option_3 = models.CharField(max_length=255, default='')
+    option_4 = models.CharField(max_length=255, default='')
+    answer = models.CharField(max_length=255, default='')
+    explanation = models.TextField(null=True, blank=True)
+
     def __str__(self):
-        return f"{self.id} - {self.answer} - {self.question}"
+        return f"Options for question {self.question.id if self.question else 'N/A'}"
 
 class UserAnswer(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_answers', null=True, blank=True)
-    question = models.ForeignKey(Questions, on_delete=models.CASCADE, related_name='user_answers')
-    selected_option = models.CharField(max_length=100, null=True, blank=True)
-    is_correct = models.BooleanField(default=False)
-    category = models.CharField(max_length=10, choices=Questions.QUESTION_CATEGORY, null=True, blank=True)
-    difficulty = models.CharField(max_length=10, choices=Questions.DIFFICULTY_LEVEL, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    question = models.ForeignKey(Questions, on_delete=models.CASCADE)
+    selected_option = models.CharField(max_length=255, null=True, blank=True)
+    is_correct = models.BooleanField()
+    category = models.CharField(max_length=10, null=True, blank=True)
+    difficulty = models.CharField(max_length=10, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.id} - {self.question} - {self.is_correct}"
-    def save(self, *args, **kwargs):
-        if self.question:
-            self.category = self.question.question_category
-            self.difficulty = self.question.diff_level
+        return f"Answer by {self.user} for question {self.question.id} at time {self.timestamp}"
 
-            option = Options.objects.get(question=self.question)
-            self.is_correct = (self.selected_option == option.answer)
-        super(UserAnswer, self).save(*args, **kwargs)
-   
 class QuizProgress(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_progress', null=True, blank=True)
-    session_key = models.CharField(max_length=100, null=True, blank=True, help_text="For anonymous users")
-    category = models.CharField(max_length=10, choices=Questions.QUESTION_CATEGORY, null=True, blank=True)
-    difficulty = models.CharField(max_length=10, choices=Questions.DIFFICULTY_LEVEL, null=True, blank=True)
-    current_question_id = models.IntegerField(null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    category = models.CharField(max_length=10, null=True, blank=True)
+    difficulty = models.CharField(max_length=10, null=True, blank=True)
+    current_question_id = models.IntegerField(default=1)
     last_updated = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        unique_together = [['user', 'category', 'difficulty'], ['session_key', 'category', 'difficulty']]
-        
+
     def __str__(self):
-        user_identifier = self.user.username if self.user else f"Session: {self.session_key}"
-        return f"{user_identifier} - {self.category} - {self.difficulty} - Question: {self.current_question_id}"
-   
+        return f"Progress of {self.user or self.session_key} - {self.category} {self.difficulty}"
+
+class UserPerformance(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    current_category = models.CharField(max_length=10, choices=QUESTION_CATEGORY, null=True, blank=True, help_text="Category the user is currently working on")
+    current_difficulty = models.CharField(max_length=10, choices=DIFFICULTY_LEVEL, null=True, blank=True, help_text="Difficulty level the user is currently working on")
+    categories_started = models.JSONField(default=list, blank=True, help_text="List of categories the user has started")
+    categories_finished = models.JSONField(default=list, blank=True, help_text="List of categories the user has completed")
+    total_answered = models.IntegerField(default=0)
+    total_correct = models.IntegerField(default=0)
+    total_wrong = models.IntegerField(default=0)
+
+    def __str__(self):
+        return (
+            f"Performance of {self.user.username}: "
+            f"Category={self.current_category or 'N/A'}, "
+            f"Difficulty={self.current_difficulty or 'N/A'}, "
+            f"Answered={self.total_answered}, "
+            f"Correct={self.total_correct}, Wrong={self.total_wrong}"
+        )

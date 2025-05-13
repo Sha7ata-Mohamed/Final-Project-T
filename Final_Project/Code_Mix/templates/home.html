@@ -3,99 +3,124 @@
 
 {% block title %}Code Mix - Welcome{% endblock %}
 
+{% block extra_js %}
+<script>
+  document.querySelectorAll('.card-hover').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      card.style.transform = `rotateX(${(-y / 20).toFixed(2)}deg) rotateY(${(x / 20).toFixed(2)}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'rotateX(0) rotateY(0)';
+    });
+  });
+</script>
+{% endblock %}
+{% block extra_css %}
+<style>
+  /* Global background gradient */
+  body {
+    background: #ffffff;
+    min-height: 100vh;
+}
+  /* Hero cards & content unchanged */
+  .card-hover:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .btn-submit { width: 160px; }
+  .question-header { background: linear-gradient(90deg, #218838, #28a745); color: #fff; }
+  .form-check-input { transform: scale(1.2); margin-right: 1rem; }
+  /* Rounded-pill styling for difficulty buttons */
+  .btn-diff { border-radius: 50px; }
+</style>
+{% endblock %}
+
 {% block header %}Welcome to Code Mix{% endblock %}
 {% block subheader %}Hope you are ready for your <b>ADVENTURE</b>{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <!-- Left side: CODE-MIX logo and info -->
-        <div class="col-md-3">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">CODE-MIX</h2>
-                </div>
-                <div class="card-body text-center">
-                    <div class="logo-container mb-3">
-                        <span class="display-4">
-                            <span class="text-primary">CODE</span><span class="text-danger">-</span><span class="text-success">MIX</span>
-                        </span>
-                    </div>
-                    <p class="mb-0">Test your programming knowledge with our interactive quizzes!</p>
-                </div>
-            </div>
+<div class="container py-5">
+  <div class="row justify-content-center g-4">
+    <!-- Logo Card -->
+    <div class="col-md-3">
+      <div class="card card-hover shadow-lg rounded-4">
+        <div class="card-header bg-primary bg-gradient text-white rounded-top-4">
+          <h5 class="mb-0">CODE-MIX</h5>
         </div>
-        
-        <!-- Center: Quiz options -->
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="h4 mb-0">Choose a difficulty to start:</h2>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-3">
-                        <a href="{% url 'choose_category' %}?diff_level=easy" class="btn btn-success btn-lg">Easy</a>
-                        <a href="{% url 'choose_category' %}?diff_level=medium" class="btn btn-warning btn-lg">Medium</a>
-                        <a href="{% url 'choose_category' %}?diff_level=hard" class="btn btn-danger btn-lg">Hard</a>
-                    </div>
-                    
-                    {% if user_progress %}
-                    <div class="mt-4">
-                        <div class="card bg-light">
-                            <div class="card-header">
-                                <h3 class="h5 mb-0">Resume Your Quiz</h3>
-                            </div>
-                            <div class="card-body">
-                                <p>You have an unfinished quiz:</p>
-                                <ul class="list-group mb-3">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Category:
-                                        <span class="badge bg-primary rounded-pill">{{ user_progress.category|title }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        Difficulty:
-                                        <span class="badge bg-{% if user_progress.difficulty == 'easy' %}success{% elif user_progress.difficulty == 'medium' %}warning{% else %}danger{% endif %} rounded-pill">{{ user_progress.difficulty|title }}</span>
-                                    </li>
-                                </ul>
-                                
-                                {% if user_progress.difficulty == 'easy' %}
-                                <a href="{% url 'easy_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
-                                {% elif user_progress.difficulty == 'medium' %}
-                                <a href="{% url 'medium_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
-                                {% elif user_progress.difficulty == 'hard' %}
-                                <a href="{% url 'hard_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100">Resume Quiz</a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="card-body text-center">
+          <span class="display-4" style="font-family: monospace;">
+            <span class="text-primary">CODE</span><span class="text-info">-</span><span class="text-success">MIX</span>
+          </span>
+          <p class="mt-3">Test your programming knowledge with our interactive quizzes!</p>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="h5 mb-0">Your Profile</h2>
-                </div>
-                <div class="card-body">
-                    {% if user.is_authenticated %}
-                        <div class="text-center mb-3">
-                            <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
-                            <h3 class="h5 mt-2">{{ user.username }}</h3>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'profile' %}" class="btn btn-outline-primary">View Full Profile</a>
-                            <a href="{% url 'scores' %}" class="btn btn-outline-info">View Your Scores</a>
-                        </div>
-                    {% else %}
-                        <p class="text-center mb-3">You are not logged in</p>
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
-                            <a href="{% url 'signup' %}" class="btn btn-outline-primary">Sign Up</a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+
+    <!-- Difficulty Selection Card -->
+    <div class="col-md-6">
+      <div class="card card-hover shadow-lg rounded-4">
+        <div class="card-header bg-primary bg-gradient text-white rounded-top-4">
+          <h5 class="mb-0">Choose a Difficulty to Start</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-3">
+            <a href="{% url 'choose_category' %}?diff_level=easy" class="btn btn-success btn-lg shadow-sm rounded-pill">Easy</a>
+            <a href="{% url 'choose_category' %}?diff_level=medium" class="btn btn-warning btn-lg shadow-sm rounded-pill">Medium</a>
+            <a href="{% url 'choose_category' %}?diff_level=hard" class="btn btn-danger btn-lg shadow-sm rounded-pill">Hard</a>
+          </div>
+
+          {% if user_progress %}
+          <div class="mt-4">
+            <div class="card border-0 shadow-sm rounded-4">
+              <div class="card-header bg-light rounded-top-4">
+                <h6 class="mb-0 text-secondary">Resume Your Quiz</h6>
+              </div>
+              <div class="card-body">
+                <p>You have an unfinished quiz:</p>
+                <ul class="list-group list-group-flush mb-3">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Category
+                    <span class="badge bg-primary rounded-pill">{{ user_progress.category|title }}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Difficulty
+                    <span class="badge bg-{% if user_progress.difficulty == 'easy' %}success{% elif user_progress.difficulty == 'medium' %}warning{% else %}danger{% endif %} rounded-pill">
+                      {{ user_progress.difficulty|title }}
+                    </span>
+                  </li>
+                </ul>
+                <a href="{% url user_progress.difficulty|add:'_category' user_progress.current_question_id %}?category={{ user_progress.category }}" class="btn btn-primary w-100 shadow-sm rounded-pill">
+                  <i class="bi bi-arrow-repeat me-2"></i>Resume Quiz
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="col-md-3">
+      <div class="card card-hover shadow-lg rounded-4">
+        <div class="card-header bg-primary bg-gradient text-white rounded-top-4">
+          <h5 class="mb-0">Your Profile</h5>
+        </div>
+        <div class="card-body text-center">
+          {% if user.is_authenticated %}
+          <i class="bi bi-person-circle text-secondary" style="font-size: 3rem;"></i>
+          <h6 class="mt-2 mb-4">{{ user.username|title }}</h6>
+          {% endif %}
+          <div class="d-grid gap-2">
+            <a href="{% url 'profile' %}" class="btn btn-success btn-sm text-white shadow-sm rounded-pill">View Profile</a>
+            <a href="{% url 'scores' %}" class="btn btn-info btn-sm text-white shadow-sm rounded-pill">View Your Scores</a>
+          </div>
+          <div>
+            <a href="{% url 'performance' %}" class="btn btn-danger btn-sm text-white shadow-sm rounded-pill mt-3">User Performance</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
