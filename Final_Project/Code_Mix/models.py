@@ -1,7 +1,7 @@
-from django.db import models
-from django.contrib.auth.models import User
+from django.db import models 
+from django.views.generic import TemplateView
+from django.contrib.auth.models import User 
 
-# Define choices for difficulty level and question category
 DIFFICULTY_LEVEL = [
     ('easy', 'Easy'),
     ('medium', 'Medium'),
@@ -78,3 +78,4 @@ class UserPerformance(models.Model):
             f"Answered={self.total_answered}, "
             f"Correct={self.total_correct}, Wrong={self.total_wrong}"
         )
+    

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Performance{% endblock %}
+{% block header %}Your Performance Overview{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Performance Summary for {{ performance.user.username }}</h4>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Current Category:</strong> {{ performance.current_category|default:"N/A"|title }}</li>
+            <li class="list-group-item"><strong>Current Difficulty:</strong> {{ performance.current_difficulty|default:"N/A"|title }}</li>
+            <li class="list-group-item"><strong>Categories Started:</strong> 
+              {% if performance.categories_started %}
+                <span class="badge bg-info me-1" for="cat" in performance.categories_started>{{ cat|title }}</span>
+              {% else %}
+                None
+              {% endif %}
+            </li>
+            <li class="list-group-item"><strong>Categories Finished:</strong> 
+              {% if performance.categories_finished %}
+                <span class="badge bg-success me-1" for="cat" in performance.categories_finished>{{ cat|title }}</span>
+              {% else %}
+                None
+              {% endif %}
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Total Answered:</strong> {{ performance.total_answered }}</li>
+            <li class="list-group-item"><strong>Total Correct:</strong> <span class="text-success">{{ performance.total_correct }}</span></li>
+            <li class="list-group-item"><strong>Total Wrong:</strong> <span class="text-danger">{{ performance.total_wrong }}</span></li>
+            <li class="list-group-item"><strong>Overall Accuracy:</strong>
+              {% if performance.total_answered > 0 %}
+              {% widthratio performance.total_correct performance.total_answered 100 as accuracy %}
+              {{ accuracy|floatformat:1 }}%
+            {% else %}
+                N/A
+              {% endif %}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-3 text-center">
+        <a href="{% url 'scores' %}" class="btn btn-outline-primary me-2">View Detailed Scores</a>
+        <a href="{% url 'profile' %}" class="btn btn-outline-secondary">Back to Profile</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

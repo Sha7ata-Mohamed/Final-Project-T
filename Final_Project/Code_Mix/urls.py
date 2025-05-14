@@ -1,8 +1,8 @@
-from django.urls import path
+from django.urls import path 
 from . import views
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('home/', views.home, name='home'),
     path('choose_category/', views.choose_category, name='choose_category'),
     path('type/<str:diff_level>/', views.choose_type, name='choose_type'),
     path('easy/<int:id>/', views.easy_category, name='easy_category'),
