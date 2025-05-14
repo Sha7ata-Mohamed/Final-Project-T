@@ -1,11 +1,11 @@
 from collections import defaultdict
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
-from django.utils import timezone
-from django.utils.http import urlencode
-from django.db.models import Count, Q, F, ExpressionWrapper, FloatField
-from .models import Questions, Options, UserAnswer, QuizProgress, UserPerformance
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect 
+from django.urls import reverse 
+from django.utils import timezone 
+from django.utils.http import urlencode 
+from django.db.models import Count, Q, F, ExpressionWrapper, FloatField 
+from .models import Questions, Options, UserAnswer, QuizProgress, UserPerformance 
+from django.contrib.auth.decorators import login_required 
 
 
 def profile(request):
