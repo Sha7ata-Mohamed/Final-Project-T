@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Summary{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-6">
+    <h2 class="text-2xl font-bold mb-4">Quiz Summary</h2>
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <p><strong>Category:</strong> {{ category }}</p>
+        <p><strong>Difficulty:</strong> {{ difficulty }}</p>
+        <p><strong>Total Questions:</strong> {{ total_count }}</p>
+        <p><strong>Correct Answers:</strong> {{ correct_count }}</p>
+        <p><strong>Wrong Answers:</strong> {{ wrong_count }}</p>
+        <p><strong>Score Percentage:</strong> {{ percentage }}%</p>
+    </div>
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
+    </div>
+</div>
+{% endblock %} 

@@ -182,10 +182,15 @@ def submit_answer(request):
         ua.user = request.user
     ua.save()
 
+    # Determine if the current question is the last one
     qs = Questions.objects.filter(
         diff_level=question.diff_level,
         question_category=question.question_category
     ).order_by('id')
+    last_question = qs.last()
+    is_last = (question.id == last_question.id) if last_question else False
+
+    # Update progress and redirect logic
     nxt = qs.filter(id__gt=question.id).first() or qs.first()
 
     progress_defaults = {'current_question_id': nxt.id, 'last_updated': timezone.now()}
@@ -205,6 +210,9 @@ def submit_answer(request):
             difficulty=difficulty,
             defaults=progress_defaults
         )
+
+    if is_last:
+        return redirect('quiz_summary', category=category, difficulty=difficulty)
 
     base = reverse(f'{difficulty}_category', args=[question.id])
     params = {
@@ -275,4 +283,45 @@ def performance_view(request):
     perf.save()
 
     return render(request, 'performance.html', {'performance': perf})
+
+def quiz_performance(request, category, difficulty):
+    user_filter = Q(user=request.user) if request.user.is_authenticated else Q(session_key=request.session.session_key)
+    answers = UserAnswer.objects.filter(user_filter, category=category, difficulty=difficulty)
+
+    correct_count = answers.filter(is_correct=True).count()
+    wrong_count = answers.filter(is_correct=False).count()
+    total_count = answers.count()
+    percentage = (correct_count / total_count * 100) if total_count > 0 else 0
+
+    context = {
+        'category': category,
+        'difficulty': difficulty,
+        'correct_count': correct_count,
+        'wrong_count': wrong_count,
+        'total_count': total_count,
+        'percentage': percentage,
+    }
+    return render(request, 'quiz_performance.html', context)
+
+def quiz_summary(request, category, difficulty):
+    user_filter = Q(user=request.user) if request.user.is_authenticated else Q(session_key=request.session.session_key)
+    answers = UserAnswer.objects.filter(user_filter, category=category, difficulty=difficulty)
+
+    correct_count = answers.filter(is_correct=True).count()
+    wrong_count = answers.filter(is_correct=False).count()
+    total_questions = 5  # Assuming there are 5 questions in the quiz
+
+    correct_percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
+    wrong_percentage = (wrong_count / total_questions * 100) if total_questions > 0 else 0
+
+    context = {
+        'category': category,
+        'difficulty': difficulty,
+        'correct_count': correct_count,
+        'wrong_count': wrong_count,
+        'total_questions': total_questions,
+        'correct_percentage': correct_percentage,
+        'wrong_percentage': wrong_percentage,
+    }
+    return render(request, 'quiz_summary.html', context)
     
