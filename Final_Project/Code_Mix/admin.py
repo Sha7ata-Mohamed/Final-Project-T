@@ -3,7 +3,7 @@ from .models import Questions, Options, UserAnswer, QuizProgress, UserPerformanc
 
 @admin.register(Options)
 class OptionsAdmin(admin.ModelAdmin):
-    list_display = ('question_title','option_1', 'option_2', 'option_3', 'option_4', 'answer', 'explanation')
+    list_display = ('question_title', 'option_1', 'option_2', 'option_3', 'option_4', 'explanation' ,'answer', 'title_q')
     list_filter = ('question__diff_level', 'question__question_category')
 
     def question_title(self, obj):
@@ -14,7 +14,7 @@ class OptionsAdmin(admin.ModelAdmin):
 @admin.register(Questions)
 class QuestionsAdmin(admin.ModelAdmin):
     list_display = ('id', 'diff_level', 'question_category', 'title')
-    list_filter = ('diff_level', 'question_category')
+    list_filter = ('diff_level', 'question_category','title')
 
 
 

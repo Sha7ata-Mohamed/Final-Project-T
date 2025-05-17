@@ -23,7 +23,7 @@ class Questions(models.Model):
     answered_by = models.ManyToManyField(User, through='UserAnswer', related_name='answered_questions', blank=True)
 
     def __str__(self):
-        return f"{self.id}: {self.diff_level} - {self.question_category} ({self.question})"
+        return f"{self.id}: {self.diff_level} - {self.question_category} - {self.question} - {self.title}"
 
 class Options(models.Model):
     question = models.OneToOneField(Questions, on_delete=models.CASCADE, null=True, blank=True, help_text="Question for which this option is valid")
@@ -32,6 +32,7 @@ class Options(models.Model):
     option_3 = models.CharField(max_length=255, default='')
     option_4 = models.CharField(max_length=255, default='')
     answer = models.CharField(max_length=255, default='')
+    title_q = models.CharField(max_length=255, default='')
     explanation = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -79,3 +80,22 @@ class UserPerformance(models.Model):
             f"Correct={self.total_correct}, Wrong={self.total_wrong}"
         )
     
+class User(models.Model):
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    phone_number = models.CharField(max_length=15, blank=True)
+    address = models.TextField(blank=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    total_quizzes_taken = models.IntegerField(default=0)
+    total_correct_answers = models.IntegerField(default=0)
+    total_wrong_answers = models.IntegerField(default=0)
+    last_quiz_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.username

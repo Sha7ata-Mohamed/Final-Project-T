@@ -12,4 +12,6 @@ urlpatterns = [
     path('scores/', views.show_scores, name='scores'),
     path('profile/', views.profile, name='profile'),
     path('performance/', views.performance_view, name='performance'),
+    path('quiz_performance/<str:category>/<str:difficulty>/', views.quiz_performance, name='quiz_performance'),
+    path('quiz_summary/<str:category>/<str:difficulty>/', views.quiz_summary, name='quiz_summary'),
 ]
