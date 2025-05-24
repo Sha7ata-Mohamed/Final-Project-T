@@ -80,7 +80,7 @@ class UserPerformance(models.Model):
             f"Correct={self.total_correct}, Wrong={self.total_wrong}"
         )
     
-class User(models.Model):
+class UserData(models.Model):
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30, blank=True)

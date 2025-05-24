@@ -1,0 +1,108 @@
+body
+{
+    margin: 0;
+    padding: 0;
+    background-color:#ffffff;
+    font-family: 'Arial';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.login{
+        width: 382px;
+        overflow: hidden;
+        margin: 20px auto;
+        padding: 40px;
+        background: #23463f;
+        border-radius: 15px;
+        color: white;
+
+}
+h1 {
+    color: #277582;
+    margin-bottom: 30px;
+}
+h2{
+    text-align: center;
+    color: #277582;
+    padding: 20px;
+}
+p {
+    color: #666;
+    margin-bottom: 20px;
+}
+label{
+    color: #08ffd1;
+    font-size: 17px;
+}
+#Uname{
+    width: 300px;
+    height: 30px;
+    border: none;
+    border-radius: 3px;
+    padding-left: 8px;
+}
+#Pass{
+    width: 300px;
+    height: 30px;
+    border: none;
+    border-radius: 3px;
+    padding-left: 8px;
+
+}
+#log{
+    width: 300px;
+    height: 30px;
+    border: none;
+    border-radius: 17px;
+    padding-left: 7px;
+    color: blue;
+
+
+}
+button, .button {
+    width: 300px;
+    height: 40px;
+    border: none;
+    border-radius: 20px;
+    background-color: #277582;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    line-height: 40px;
+    text-decoration: none;
+    margin: 10px 0;
+    transition: background-color 0.3s ease;
+}
+
+button:hover, .button:hover {
+    background-color: #1a5059;
+}
+
+#login-button, #signup-button, #reset-password-button {
+    width: 300px;
+    height: 40px;
+    border: none;
+    border-radius: 20px;
+    background-color: #277582;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: block;
+    text-align: center;
+    line-height: 40px;
+    text-decoration: none;
+    margin: 10px auto;
+    transition: background-color 0.3s ease;
+}
+
+#login-button:hover, #signup-button:hover, #reset-password-button:hover {
+    background-color: #1a5059;
+}
+
+.text-center {
+    text-align: center;
+}
