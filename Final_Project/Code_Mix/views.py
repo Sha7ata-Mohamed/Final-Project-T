@@ -13,11 +13,25 @@ def profile(request):
     if request.user.is_authenticated:
         user_progress = QuizProgress.objects.filter(user=request.user).order_by('last_updated')
 
-    user_scores = UserAnswer.objects.filter(user=request.user).values('category', 'difficulty').annotate(
-        correct_count=Count('id', filter=Q(is_correct=True)),
-        total_count=Count('id'),
-        wrong_count=Count('id', filter=Q(is_correct=False)),
-    ).order_by('category', 'difficulty')
+    # When the user is not authenticated ``request.user`` is an
+    # ``AnonymousUser`` instance. Filtering a ForeignKey field with an
+    # anonymous user raises ``ValueError`` because Django expects either a
+    # concrete ``User`` instance or ``None``. This caused the profile page to
+    # fail for anonymous visitors.  To avoid the exception we only query for
+    # scores if the user is authenticated; otherwise we return an empty queryset.
+    if request.user.is_authenticated:
+        user_scores = (
+            UserAnswer.objects.filter(user=request.user)
+            .values('category', 'difficulty')
+            .annotate(
+                correct_count=Count('id', filter=Q(is_correct=True)),
+                total_count=Count('id'),
+                wrong_count=Count('id', filter=Q(is_correct=False)),
+            )
+            .order_by('category', 'difficulty')
+        )
+    else:
+        user_scores = UserAnswer.objects.none()
 
     return render(request, 'profile.html', {
         'user_progress': user_progress,
