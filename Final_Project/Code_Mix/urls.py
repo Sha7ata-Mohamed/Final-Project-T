@@ -1,7 +1,9 @@
-from django.urls import path 
+from django.urls import path
+from django.views.generic import TemplateView
 from . import views
 
 urlpatterns = [
+    path('', TemplateView.as_view(template_name="index.html"), name='index'),
     path('home/', views.home, name='home'),
     path('choose_category/', views.choose_category, name='choose_category'),
     path('type/<str:diff_level>/', views.choose_type, name='choose_type'),

@@ -1,11 +1,11 @@
 from collections import defaultdict
-from django.shortcuts import render, get_object_or_404, redirect 
-from django.urls import reverse 
-from django.utils import timezone 
-from django.utils.http import urlencode 
-from django.db.models import Count, Q, F, ExpressionWrapper, FloatField 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.http import urlencode
+from django.db.models import Count, Q, F, ExpressionWrapper, FloatField
 from .models import Questions, Options, UserAnswer, QuizProgress, UserPerformance 
-from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.decorators import login_required
 
 
 def profile(request):
@@ -85,8 +85,8 @@ def choose_type(request, diff_level):
     if prg:
         start_id = prg.current_question_id
     else:
-        # get first question id for this combo
-        qs = Questions.objects.filter(diff_level=diff_level, question_category=category).order_by('id')
+        # get first question id for this combo that has options
+        qs = Questions.objects.filter(diff_level=diff_level, question_category=category, options__isnull=False).order_by('id')
         start_id = qs.first().id if qs.exists() else 1
 
     base = reverse(f'{diff_level}_category', args=[start_id])
@@ -98,10 +98,13 @@ def _category_view(request, id, diff_level, template_name, context_key):
     if not category:
         return redirect('choose_category')
 
+    # Get questions that have options
     qs = Questions.objects.filter(
         diff_level=diff_level,
-        question_category=category
+        question_category=category,
+        options__isnull=False
     ).order_by('id')
+
     if not qs.exists():
         return redirect('choose_category')
 
@@ -115,7 +118,7 @@ def _category_view(request, id, diff_level, template_name, context_key):
     last    = qs.last()
     is_last = (question.id == last.id) if last else False
 
-    opt_obj = get_object_or_404(Options, question=question)
+    opt_obj = Options.objects.get(question=question)
 
     show_answer     = (request.GET.get('show_answer') == 'True')
     feedback        = request.GET.get('feedback', '')
@@ -126,7 +129,11 @@ def _category_view(request, id, diff_level, template_name, context_key):
     if raw in ('option_1', 'option_2', 'option_3', 'option_4'):
         correct_text = getattr(opt_obj, raw).strip()
     else:
+        # Handle various answer formats
         if raw.lower().startswith('answer:'):
+            _, raw = raw.split(':', 1)
+            raw = raw.strip()
+        elif raw.lower().startswith('correct answer:'):
             _, raw = raw.split(':', 1)
             raw = raw.strip()
         correct_text = raw
@@ -177,12 +184,40 @@ def submit_answer(request):
     if raw in ('option_1', 'option_2', 'option_3', 'option_4'):
         correct_text = getattr(opts, raw).strip()
     else:
+        # Handle various answer formats
         if raw.lower().startswith('answer:'):
+            _, raw = raw.split(':', 1)
+            raw = raw.strip()
+        elif raw.lower().startswith('correct answer:'):
             _, raw = raw.split(':', 1)
             raw = raw.strip()
         correct_text = raw
 
-    is_correct = (selected_text.lower() == correct_text.lower())
+    # Compare the selected option with the correct answer
+    # Handle cases where the answer might include option prefixes like "A) ", "B) ", etc.
+    import html
+    
+    # Decode HTML entities in both selected and correct answers
+    selected_decoded = html.unescape(selected_text).lower().strip()
+    correct_decoded = html.unescape(correct_text).lower().strip()
+    
+    # If the correct answer doesn't have a prefix but selected does, compare without prefix
+    if selected_decoded.startswith(('a)', 'b)', 'c)', 'd)')) and not correct_decoded.startswith(('a)', 'b)', 'c)', 'd)')):
+        # Extract just the answer part after the prefix
+        selected_decoded = selected_decoded[2:].strip()
+    
+    # If the correct answer has a prefix but selected doesn't, compare the answer parts
+    if correct_decoded.startswith(('a)', 'b)', 'c)', 'd)')) and not selected_decoded.startswith(('a)', 'b)', 'c)', 'd)')):
+        correct_decoded = correct_decoded[2:].strip()
+    
+    is_correct = (selected_decoded == correct_decoded)
+    
+    # Debug logging for troubleshooting (only when incorrect for debugging)
+    if not is_correct:
+        print(f"DEBUG: Question ID: {q_id}")
+        print(f"DEBUG: Selected: {repr(selected_text)} -> {repr(selected_decoded)}")
+        print(f"DEBUG: Correct: {repr(correct_text)} -> {repr(correct_decoded)}")
+        print(f"DEBUG: Match: {is_correct}")
     feedback   = 'correct' if is_correct else 'incorrect'
 
     ua = UserAnswer(
@@ -299,8 +334,12 @@ def performance_view(request):
     return render(request, 'performance.html', {'performance': perf})
 
 def quiz_performance(request, category, difficulty):
-    user_filter = Q(user=request.user) if request.user.is_authenticated else Q(session_key=request.session.session_key)
-    answers = UserAnswer.objects.filter(user_filter, category=category, difficulty=difficulty)
+    if request.user.is_authenticated:
+        answers = UserAnswer.objects.filter(user=request.user, category=category, difficulty=difficulty)
+    else:
+        # For anonymous users, we can't track by session in UserAnswer model
+        # since UserAnswer doesn't have session_key field
+        answers = UserAnswer.objects.none()  # Return empty queryset
 
     correct_count = answers.filter(is_correct=True).count()
     wrong_count = answers.filter(is_correct=False).count()
@@ -318,8 +357,12 @@ def quiz_performance(request, category, difficulty):
     return render(request, 'quiz_performance.html', context)
 
 def quiz_summary(request, category, difficulty):
-    user_filter = Q(user=request.user) if request.user.is_authenticated else Q(session_key=request.session.session_key)
-    answers = UserAnswer.objects.filter(user_filter, category=category, difficulty=difficulty)
+    if request.user.is_authenticated:
+        answers = UserAnswer.objects.filter(user=request.user, category=category, difficulty=difficulty)
+    else:
+        # For anonymous users, we can't track by session in UserAnswer model
+        # since UserAnswer doesn't have session_key field
+        answers = UserAnswer.objects.none()  # Return empty queryset
 
     correct_count = answers.filter(is_correct=True).count()
     wrong_count = answers.filter(is_correct=False).count()

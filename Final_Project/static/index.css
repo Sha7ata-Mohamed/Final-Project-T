@@ -115,12 +115,9 @@ body {
 
 .lf--forgot {
   margin-top: 1em;
-  color: #00d6b7; /* $green-light */
-  font-size: .65em;
-  text-align: center;
-  position: relative;
 }
 
-::placeholder {
-  color: #8f8f8f; /* $gray */
+.forgot-link {
+  color: #00d6b7;
+  text-decoration: none;
 }

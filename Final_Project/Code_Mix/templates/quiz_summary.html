@@ -8,13 +8,13 @@
     <div class="bg-white shadow-md rounded-lg p-6">
         <p><strong>Category:</strong> {{ category }}</p>
         <p><strong>Difficulty:</strong> {{ difficulty }}</p>
-        <p><strong>Total Questions:</strong> {{ total_count }}</p>
+        <p><strong>Total Questions:</strong> {{ total_questions }}</p>
         <p><strong>Correct Answers:</strong> {{ correct_count }}</p>
         <p><strong>Wrong Answers:</strong> {{ wrong_count }}</p>
-        <p><strong>Score Percentage:</strong> {{ percentage }}%</p>
+        <p><strong>Correct Percentage:</strong> {{ correct_percentage|floatformat:1 }}%</p>
     </div>
     <div class="mt-4">
         <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

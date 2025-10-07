@@ -18,14 +18,18 @@
             <li class="list-group-item"><strong>Current Difficulty:</strong> {{ performance.current_difficulty|default:"N/A"|title }}</li>
             <li class="list-group-item"><strong>Categories Started:</strong> 
               {% if performance.categories_started %}
-                <span class="badge bg-info me-1" for="cat" in performance.categories_started>{{ cat|title }}</span>
+                {% for cat in performance.categories_started %}
+                  <span class="badge bg-info me-1">{{ cat|title }}</span>
+                {% endfor %}
               {% else %}
                 None
               {% endif %}
             </li>
             <li class="list-group-item"><strong>Categories Finished:</strong> 
               {% if performance.categories_finished %}
-                <span class="badge bg-success me-1" for="cat" in performance.categories_finished>{{ cat|title }}</span>
+                {% for cat in performance.categories_finished %}
+                  <span class="badge bg-success me-1">{{ cat|title }}</span>
+                {% endfor %}
               {% else %}
                 None
               {% endif %}

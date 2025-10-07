@@ -25,7 +25,24 @@ SECRET_KEY = 'django-insecure-2dlne!-@u&z!o6a68))w6@@r#bgw^%+t2j@sg5rv@f68=z$+tv
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+# Add CSRF trusted origins for browser preview
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'http://127.0.0.1:50259',  # Browser preview proxy
+]
+
+# For development, allow CSRF from browser preview
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+
+# Additional CSRF settings for development
+if DEBUG:
+    CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 
 
 # Application definition
