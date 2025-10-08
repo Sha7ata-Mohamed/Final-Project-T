@@ -1,16 +1,17 @@
 # final-project-404-not-found
-final-project-404-not-found created by GitHub Classroom
+CodeMix is a Django-powered quiz platform where learners can practice Python, HTML, and Django concepts across multiple difficulty levels, track their progress, and review detailed feedback after every question. The project was created as the Final Project for the 404-Not-Found team.
+
 # Overview
  - The project is a Website designed to be a quiz for many topic like Python, HTML and Django framework. Users will be able to test their knowledge through various quizzes and track their scores. This is how it will work.
- - There is 3 **DIFFICULTY LEVEL** Easy, Medium and Hard. The user can choose any difficulty level then they will have to choose which topic they want to test their knowledge in. There will be scores for each correct answer 
- - The user can see in his profile the total questions for each category and the total correct/wrong answer for the category & difficulty level it self 
+ - There is 3 **DIFFICULTY LEVEL** Easy, Medium and Hard. The user can choose any difficulty level then they will have to choose which topic they want to test their knowledge in. There will be scores for each correct answer
+ - The user can see in his profile the total questions for each category and the total correct/wrong answer for the category & difficulty level it self
  - The user progress is saved the time he left so he can come back anytime
- - If the user pressed the wrong answer it will show the correct answer 
-# Requirements 
+ - If the user pressed the wrong answer it will show the correct answer
+# Requirements
  - [ ] Setup new project named **Final_Project**
- ### Note do not forget to cd 
+ ### Note do not forget to cd
  - [ ] Setup new app named **Code_Mix** use this code
- - [ ] Create the models based on ER diagram 
+ - [ ] Create the models based on ER diagram
  - [ ] Perform migrations and prepare the database (makemigrations & migrate)
  - [ ] Create the admin based on these models
  - [ ] Create a superuser name **test** email(optional) test@test.com **password** 1234
