@@ -99,14 +99,9 @@
                     </div>
                     {% endfor %}
 
-                    <div class="actions d-flex justify-content-between">
+                    <div class="actions d-flex justify-content-start flex-wrap gap-2">
                         {% if not show_answer %}
-                        <button type="submit" class="btn btn-primary">Submit Answer</button>
-                        {% endif %}
-                        {% if show_answer and is_last %}
-                        <a href="{% url 'home' %}" class="btn btn-primary">Finish Quiz</a>
-                        {% else %}
-                        <a href="{% url 'hard_category' next_id %}?category={{ category }}" class="btn btn-{% if show_answer %}primary{% else %}outline-secondary{% endif %}">Next Question</a>
+                            <button type="submit" class="btn btn-primary">Submit Answer</button>
                         {% endif %}
                     </div>
                 </form>
@@ -167,6 +162,7 @@
                 </div>
                 {% endif %}
 
+                {% if show_answer %}
                 <div class="mt-3">
                     <p><a href="{% url 'home' %}" class="btn btn-link">Back to Home</a></p>
                 </div>
@@ -174,4 +170,21 @@
         </div>
     </div>
 </div>
+
+{% if show_answer %}
+    {% if is_last %}
+    <div class="text-center mt-4">
+        <a href="{% url 'quiz_summary' category question_hard.diff_level %}" class="btn btn-success">Quiz Summary</a>
+    </div>
+    {% else %}
+    <div class="text-center text-muted mt-4">
+        <small>Next question loading…</small>
+    </div>
+    <script>
+        setTimeout(function () {
+            window.location.href = "{% url 'hard_category' next_id %}?category={{ category }}";
+        }, 2000);
+    </script>
+    {% endif %}
+{% endif %}
 {% endblock %}

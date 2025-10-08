@@ -7,8 +7,11 @@ class OptionsAdmin(admin.ModelAdmin):
     list_filter = ('question__diff_level', 'question__question_category')
 
     def question_title(self, obj):
-        return obj.question.title
+        if obj.question_id and obj.question:
+            return obj.question.title
+        return "N/A"
     question_title.short_description = 'Question Title'
+    question_title.admin_order_field = 'question__title'
 
 
 @admin.register(Questions)

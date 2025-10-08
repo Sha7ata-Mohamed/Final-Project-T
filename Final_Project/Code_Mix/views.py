@@ -3,8 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import urlencode
-from django.db.models import Count, Q, F, ExpressionWrapper, FloatField
-from .models import Questions, Options, UserAnswer, QuizProgress, UserPerformance 
+from django.db.models import Count, Q
+from .models import Questions, Options, UserAnswer, QuizProgress, UserPerformance
 from django.contrib.auth.decorators import login_required
 
 
@@ -82,12 +82,23 @@ def choose_type(request, diff_level):
             request.session.create()
         prg = QuizProgress.objects.filter(session_key=request.session.session_key, category=category, difficulty=diff_level).first()
 
+    if prg and not Questions.objects.filter(
+        id=prg.current_question_id,
+        diff_level=diff_level,
+        question_category=category,
+        options__isnull=False,
+    ).exists():
+        prg = None
+
     if prg:
         start_id = prg.current_question_id
     else:
         # get first question id for this combo that has options
         qs = Questions.objects.filter(diff_level=diff_level, question_category=category, options__isnull=False).order_by('id')
-        start_id = qs.first().id if qs.exists() else 1
+        first_question = qs.first()
+        if not first_question:
+            return redirect('choose_category')
+        start_id = first_question.id
 
     base = reverse(f'{diff_level}_category', args=[start_id])
     return redirect(f"{base}?category={category}")
@@ -118,7 +129,9 @@ def _category_view(request, id, diff_level, template_name, context_key):
     last    = qs.last()
     is_last = (question.id == last.id) if last else False
 
-    opt_obj = Options.objects.get(question=question)
+    opt_obj = Options.objects.filter(question=question).first()
+    if not opt_obj:
+        return redirect('choose_category')
 
     show_answer     = (request.GET.get('show_answer') == 'True')
     feedback        = request.GET.get('feedback', '')
@@ -177,8 +190,14 @@ def submit_answer(request):
     difficulty    = request.POST.get('difficulty', '')
     selected_text = request.POST.get('selected_option', '').strip()
 
-    question = get_object_or_404(Questions, id=q_id)
-    opts     = get_object_or_404(Options, question=question)
+    question = get_object_or_404(
+        Questions.objects.select_related('options').filter(options__isnull=False),
+        id=q_id,
+    )
+    try:
+        opts = question.options
+    except Options.DoesNotExist:
+        return redirect('choose_category')
 
     raw = opts.answer.strip()
     if raw in ('option_1', 'option_2', 'option_3', 'option_4'):
@@ -196,22 +215,22 @@ def submit_answer(request):
     # Compare the selected option with the correct answer
     # Handle cases where the answer might include option prefixes like "A) ", "B) ", etc.
     import html
-    
+
     # Decode HTML entities in both selected and correct answers
     selected_decoded = html.unescape(selected_text).lower().strip()
     correct_decoded = html.unescape(correct_text).lower().strip()
-    
+
     # If the correct answer doesn't have a prefix but selected does, compare without prefix
     if selected_decoded.startswith(('a)', 'b)', 'c)', 'd)')) and not correct_decoded.startswith(('a)', 'b)', 'c)', 'd)')):
         # Extract just the answer part after the prefix
         selected_decoded = selected_decoded[2:].strip()
-    
+
     # If the correct answer has a prefix but selected doesn't, compare the answer parts
     if correct_decoded.startswith(('a)', 'b)', 'c)', 'd)')) and not selected_decoded.startswith(('a)', 'b)', 'c)', 'd)')):
         correct_decoded = correct_decoded[2:].strip()
-    
+
     is_correct = (selected_decoded == correct_decoded)
-    
+
     # Debug logging for troubleshooting (only when incorrect for debugging)
     if not is_correct:
         print(f"DEBUG: Question ID: {q_id}")
@@ -234,7 +253,8 @@ def submit_answer(request):
     # Determine if the current question is the last one
     qs = Questions.objects.filter(
         diff_level=question.diff_level,
-        question_category=question.question_category
+        question_category=question.question_category,
+        options__isnull=False,
     ).order_by('id')
     last_question = qs.last()
     is_last = (question.id == last_question.id) if last_question else False
@@ -260,9 +280,6 @@ def submit_answer(request):
             defaults=progress_defaults
         )
 
-    if is_last:
-        return redirect('quiz_summary', category=category, difficulty=difficulty)
-
     base = reverse(f'{difficulty}_category', args=[question.id])
     params = {
         'category':        category,
@@ -278,42 +295,74 @@ def show_scores(request):
     Aggregates UserAnswer by category/difficulty, computing totals and percentages,
     then renders the scores view.
     """
-    user_filter = Q(user=request.user) if request.user.is_authenticated else Q()
+    if not request.user.is_authenticated:
+        return render(request, 'scores.html', {'category_data': []})
 
-    # Aggregate per difficulty
-    raw_qs = (
+    question_totals = (
+        Questions.objects
+        .filter(options__isnull=False)
+        .values('question_category', 'diff_level')
+        .annotate(total_questions=Count('id', distinct=True))
+    )
+
+    difficulty_order = {'easy': 0, 'medium': 1, 'hard': 2}
+
+    answer_stats = (
         UserAnswer.objects
-        .filter(user_filter)
+        .filter(user=request.user)
         .values('category', 'difficulty')
         .annotate(
             correct_count=Count('id', filter=Q(is_correct=True)),
             wrong_count=Count('id', filter=Q(is_correct=False)),
-            total_count=Count('id')
+            total_attempts=Count('id'),
         )
-        .annotate(
-            percentage=ExpressionWrapper(
-                F('correct_count') * 100.0 / F('total_count'),
-                output_field=FloatField()
-            )
-        )
-        .order_by('category', 'difficulty')
     )
+    stats_map = {
+        (stat['category'], stat['difficulty']): stat
+        for stat in answer_stats
+    }
 
-    # Organize by category
-    temp = defaultdict(lambda: {'totals': {'correct': 0, 'wrong': 0, 'total': 0, 'percentage': 0.0}, 'scores': []})
-    for entry in raw_qs:
-        cat = entry['category']
-        temp[cat]['scores'].append(entry)
-        temp[cat]['totals']['correct'] += entry['correct_count']
-        temp[cat]['totals']['wrong']   += entry['wrong_count']
-        temp[cat]['totals']['total']   += entry['total_count']
+    grouped = defaultdict(lambda: {'totals': {'correct': 0, 'wrong': 0, 'total': 0, 'percentage': 0.0}, 'scores': []})
+
+    for record in sorted(
+        question_totals,
+        key=lambda item: (item['question_category'], difficulty_order.get(item['diff_level'], 99))
+    ):
+        category = record['question_category']
+        difficulty = record['diff_level']
+        total_questions = record['total_questions']
+
+        stat = stats_map.get((category, difficulty), {})
+        correct = stat.get('correct_count', 0)
+        wrong = stat.get('wrong_count', 0)
+        effective_correct = min(correct, total_questions)
+        remaining_questions = max(total_questions - effective_correct, 0)
+        effective_wrong = min(wrong, remaining_questions)
+
+        percentage = (effective_correct / total_questions * 100.0) if total_questions else 0.0
+
+        score_entry = {
+            'category': category,
+            'difficulty': difficulty,
+            'correct_count': correct,
+            'wrong_count': wrong,
+            'total_count': total_questions,
+            'percentage': percentage,
+        }
+
+        grouped[category]['scores'].append(score_entry)
+        grouped_totals = grouped[category]['totals']
+        grouped_totals['correct'] += effective_correct
+        grouped_totals['wrong'] += effective_wrong
+        grouped_totals['total'] += total_questions
 
     category_data = []
-    for cat, data in temp.items():
+    for category, data in sorted(grouped.items(), key=lambda item: item[0]):
+        data['scores'].sort(key=lambda entry: difficulty_order.get(entry['difficulty'], 99))
         totals = data['totals']
         if totals['total'] > 0:
             totals['percentage'] = (totals['correct'] * 100.0) / totals['total']
-        category_data.append({'category': cat, 'totals': totals, 'scores': data['scores']})
+        category_data.append({'category': category, 'totals': totals, 'scores': data['scores']})
 
     return render(request, 'scores.html', {'category_data': category_data})
 
@@ -366,10 +415,17 @@ def quiz_summary(request, category, difficulty):
 
     correct_count = answers.filter(is_correct=True).count()
     wrong_count = answers.filter(is_correct=False).count()
-    total_questions = 5  # Assuming there are 5 questions in the quiz
+    questions_qs = Questions.objects.filter(
+        diff_level=difficulty,
+        question_category=category,
+        options__isnull=False,
+    )
+    total_questions = questions_qs.count()
+    attempted_count = answers.count()
+    denominator = total_questions or attempted_count
 
-    correct_percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
-    wrong_percentage = (wrong_count / total_questions * 100) if total_questions > 0 else 0
+    correct_percentage = (correct_count / denominator * 100) if denominator else 0
+    wrong_percentage = (wrong_count / denominator * 100) if denominator else 0
 
     context = {
         'category': category,
@@ -377,8 +433,8 @@ def quiz_summary(request, category, difficulty):
         'correct_count': correct_count,
         'wrong_count': wrong_count,
         'total_questions': total_questions,
+        'questions_attempted': attempted_count,
         'correct_percentage': correct_percentage,
         'wrong_percentage': wrong_percentage,
     }
     return render(request, 'quiz_summary.html', context)
-    

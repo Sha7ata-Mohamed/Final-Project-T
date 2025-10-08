@@ -62,36 +62,35 @@
                     <div class="option-list">
                         <div class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1"{% if show_answer %} disabled{% endif %} required>
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_1 }}" id="option1" {% if selected_option == opt.option_1 %}checked{% endif %}{% if show_answer %} disabled{% endif %} required>
                                 <label class="form-check-label" for="option1">{{ opt.option_1 }}</label>
                             </div>
                         </div>
                         <div class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2"{% if show_answer %} disabled{% endif %}>
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_2 }}" id="option2" {% if selected_option == opt.option_2 %}checked{% endif %}{% if show_answer %} disabled{% endif %}>
                                 <label class="form-check-label" for="option2">{{ opt.option_2 }}</label>
                             </div>
                         </div>
                         <div class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3"{% if show_answer %} disabled{% endif %}>
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_3 }}" id="option3" {% if selected_option == opt.option_3 %}checked{% endif %}{% if show_answer %} disabled{% endif %}>
                                 <label class="form-check-label" for="option3">{{ opt.option_3 }}</label>
                             </div>
                         </div>
                         <div class="option-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4"{% if show_answer %} disabled{% endif %}>
+                                <input class="form-check-input" type="radio" name="selected_option" value="{{ opt.option_4 }}" id="option4" {% if selected_option == opt.option_4 %}checked{% endif %}{% if show_answer %} disabled{% endif %}>
                                 <label class="form-check-label" for="option4">{{ opt.option_4 }}</label>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
 
-                    <div class="actions d-flex justify-content-between">
+                    <div class="actions d-flex justify-content-start flex-wrap gap-2">
                         {% if not show_answer %}
                             <button type="submit" class="btn btn-primary">Submit Answer</button>
                         {% endif %}
-                        <a href="{% url 'easy_category' next_id %}?category={{ category }}" class="btn btn-{% if show_answer %}primary{% else %}outline-secondary{% endif %}">Next Question</a>
                     </div>
                 </form>
 
@@ -157,4 +156,21 @@
         </div>
     </div>
 </div>
+
+{% if show_answer %}
+    {% if is_last %}
+    <div class="text-center mt-4">
+        <a href="{% url 'quiz_summary' category question_easy.diff_level %}" class="btn btn-success">Quiz Summary</a>
+    </div>
+    {% else %}
+    <div class="text-center text-muted mt-4">
+        <small>Next question loading…</small>
+    </div>
+    <script>
+        setTimeout(function () {
+            window.location.href = "{% url 'easy_category' next_id %}?category={{ category }}";
+        }, 2000);
+    </script>
+    {% endif %}
+{% endif %}
 {% endblock %}
