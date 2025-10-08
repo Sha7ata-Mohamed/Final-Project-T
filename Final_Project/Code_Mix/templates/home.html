@@ -18,22 +18,7 @@
   });
 </script>
 {% endblock %}
-{% block extra_css %}
-<style>
-  /* Global background gradient */
-  body {
-    background: #ffffff;
-    min-height: 100vh;
-}
-  /* Hero cards & content unchanged */
-  .card-hover:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; }
-  .btn-submit { width: 160px; }
-  .question-header { background: linear-gradient(90deg, #218838, #28a745); color: #fff; }
-  .form-check-input { transform: scale(1.2); margin-right: 1rem; }
-  /* Rounded-pill styling for difficulty buttons */
-  .btn-diff { border-radius: 50px; }
-</style>
-{% endblock %}
+{% block body_class %}home-page{% endblock %}
 
 {% block header %}Welcome to Code Mix{% endblock %}
 {% block subheader %}Hope you are ready for your <b>ADVENTURE</b>{% endblock %}
@@ -48,7 +33,7 @@
           <h5 class="mb-0">CODE-MIX</h5>
         </div>
         <div class="card-body text-center">
-          <span class="display-4" style="font-family: monospace;">
+          <span class="display-4 brand-mark">
             <span class="text-primary">CODE</span><span class="text-info">-</span><span class="text-success">MIX</span>
           </span>
           <p class="mt-3">Test your programming knowledge with our interactive quizzes!</p>
@@ -108,7 +93,7 @@
         </div>
         <div class="card-body text-center">
           {% if user.is_authenticated %}
-          <i class="bi bi-person-circle text-secondary" style="font-size: 3rem;"></i> 
+          <i class="bi bi-person-circle text-secondary profile-icon"></i> 
           <h6 class="mt-2 mb-4">{{ user.username|title }}</h6>
           {% endif %}
           <div class="d-grid gap-2">

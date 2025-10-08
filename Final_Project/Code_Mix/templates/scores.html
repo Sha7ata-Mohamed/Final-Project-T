@@ -40,9 +40,9 @@
             <td>{{ score.total_count }}</td>
             <td>{{ score.percentage|floatformat:1 }}%</td>
             <td>
-              <div class="progress">
+              <div class="progress progress-thick">
                 <div class="progress-bar bg-success" role="progressbar"
-                     style="width: {{ score.percentage|floatformat:1 }}%;"
+                     data-progress="{{ score.percentage|floatformat:1 }}"
                      aria-valuenow="{{ score.percentage|floatformat:0 }}"
                      aria-valuemin="0" aria-valuemax="100">
                   {{ score.percentage|floatformat:0 }}%
