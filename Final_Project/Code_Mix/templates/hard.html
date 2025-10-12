@@ -53,13 +53,18 @@
                     </div>
                 </form>
 
-                {% if show_answer %}
-                <div class="mt-4">
-                    {% if is_correct %}
-                    <div class="alert alert-success">
-                        <h4 class="alert-heading">Correct!</h4>
-                        <p>Your answer "{{ selected_option }}" is correct.</p>
-                        {% if explanation %}
+{% if show_answer %}
+    <div class="mt-4">
+        {% if not is_last %}
+        <div class="d-flex justify-content-end mb-3">
+            <a href="{% url 'hard_category' next_id %}?category={{ category }}" class="btn btn-danger btn-next-question">Next Question</a>
+        </div>
+        {% endif %}
+        {% if is_correct %}
+        <div class="alert alert-success">
+            <h4 class="alert-heading">Correct!</h4>
+            <p>Your answer "{{ selected_option }}" is correct.</p>
+            {% if explanation %}
                         <button class="btn btn-sm btn-info mb-2 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#explanationBox" aria-expanded="false" aria-controls="explanationBox">
                             Show Explanation
                         </button>
@@ -123,15 +128,6 @@
     <div class="text-center mt-4">
         <a href="{% url 'quiz_summary' category question_hard.diff_level %}" class="btn btn-success">Quiz Summary</a>
     </div>
-    {% else %}
-    <div class="text-center text-muted mt-4">
-        <small>Next question loading…</small>
-    </div>
-    <script>
-        setTimeout(function () {
-            window.location.href = "{% url 'hard_category' next_id %}?category={{ category }}";
-        }, 2000);
-    </script>
     {% endif %}
 {% endif %}
 {% endblock %}

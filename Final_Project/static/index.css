@@ -245,3 +245,20 @@ body.type-page {
 .progress-bar[data-progress] {
   width: var(--progress-width, 0%);
 }
+
+.btn-next-question {
+  border-radius: 9999px;
+  padding: 0.6rem 1.75rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ff4d4f, #d6336c);
+  border: none;
+  box-shadow: 0 8px 16px rgba(214, 51, 108, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-next-question:hover,
+.btn-next-question:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(214, 51, 108, 0.35);
+  color: #fff;
+}
